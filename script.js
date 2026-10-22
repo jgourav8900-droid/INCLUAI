@@ -1,25 +1,25 @@
 // ========================================================
-// INCLUAI — Advanced Inclusive Platform Script
-// Features: Web Speech API (Voice), Tone Rewriter,
-// Leave Flow, Role Simulation, and Accessibility
+// INCLUAI — Advanced Interactive Client Script
+// Features: Dynamic 3-Way Translation (EN, Hinglish, HI),
+// Modern Toast System, Equalizer Animation, Typewriter Effect,
+// Web Speech API, Leave Manager & Express Backend Gateway
 // ========================================================
 
-// App State
 const API_BASE = "http://localhost:5000/api";
 let currentRole = "employee"; // "employee", "hr", "admin"
-let currentLanguage = "EN";   // "EN", "HI"
+let currentLanguage = "en";   // "en", "hinglish", "hi"
 let selectedTone = "formal";
 let isListening = false;
 let recognition = null;
 
-// Leave Balances
+// Leave Balances State
 let balances = {
   pto: 14,
   sick: 7,
   casual: 3
 };
 
-// Leave Records
+// Initial Leave History
 let leaveHistory = [
   { id: 1, type: "Sick / Medical Leave", dates: "12 Oct - 13 Oct 2026", reason: "Viral flu recovery with doctor note", status: "Approved" },
   { id: 2, type: "Paid Time Off (PTO)", dates: "28 Oct - 29 Oct 2026", reason: "Family event travel", status: "Pending" }
@@ -35,19 +35,295 @@ const directory = [
 ];
 
 // ========================================================
-// 1. TAB NAVIGATION
+// 1. DYNAMIC TRANSLATION DICTIONARY (EN, Hinglish, Hindi)
+// ========================================================
+const translations = {
+  en: {
+    contrast: "Contrast",
+    roleLabel: "Role:",
+    navDashboard: "Dashboard",
+    navCopilot: "AI Copilot",
+    navTone: "Tone Rewriter",
+    navLeave: "Leave Manager",
+    navEmployees: "Employees",
+    navInclusion: "Inclusion & POSH",
+    inclusionTitle: "Inclusion Assistant",
+    inclusionDesc: "Voice speech, live translations, and empathetic communication active.",
+    heroGreeting: "Welcome back, Gourav! 👋",
+    heroSubtitle: "INCLUAI combines workplace intelligence with empathy, accessibility, and AI assistance.",
+    btnTalkCopilot: "Talk to Copilot",
+    btnApplyLeave: "Apply Leave",
+    metricLeaveTitle: "Leave Balance (PTO)",
+    metricLeaveNote: "Annual paid time off remaining",
+    metricTasksTitle: "Smart Actions Used",
+    metricTasksNote: "Emails polished & queries solved",
+    metricTeamTitle: "Colleagues Online",
+    metricTeamNote: "Across Engineering & Product",
+    metricAccessTitle: "Accessibility Score",
+    metricAccessNote: "WCAG AAA Compliance Rating",
+    quickActionsTitle: "⚡ One-Click Inclusive Actions",
+    chip1: "Translate raw thought into Sick Leave Email",
+    chip2: "Mental Wellness & Therapy Benefits",
+    chip3: "Neurodivergent & Accessible Work Guidelines",
+    chip4: "Check Leave Application Status",
+    noticeTitle: "📢 Workplace Updates",
+    notice1Title: "Voice Copilot & Live Translation:",
+    notice1Desc: "You can now talk to Copilot in Hindi & English, or switch language in 1-click.",
+    notice2Title: "Hardware & Screen-Reader Grants:",
+    notice2Desc: "HR has approved hardware grants for accessibility setups and ergonomic chairs.",
+    notice3Title: "Q4 Hackathon Announced:",
+    notice3Desc: "Build inclusive AI apps for employees with disabilities. Cash prizes available.",
+    copilotHeader: "🤖 INCLUAI Copilot (Voice & Text)",
+    copilotSub: "Ask about HR policies, benefits, leaves, or write workplace emails.",
+    copilotWelcome: "Hello Gourav! I am your INCLUAI Copilot. Ask me anything via text or microphone (🎙️). I support English, Hinglish, and Hindi!",
+    btnListen: "Listen",
+    btnSend: "Send 🚀",
+    toneHeader: "✍️ Smart Tone Rewriter & Inclusion Translator",
+    toneSub: "Convert raw thoughts or informal Hindi into professional, empathetic corporate emails.",
+    rawInputTitle: "1. Enter Raw Thought / Informal Message",
+    rawInputSub: "Type freely without worrying about corporate grammar or vocabulary.",
+    toneSelectLabel: "Select Desired Tone:",
+    toneFormal: "Professional",
+    toneEmpathetic: "Empathetic & Warm",
+    toneAssertive: "Direct & Clear",
+    toneHinglish: "Team Hinglish",
+    btnPolish: "✨ Polish & Rewrite with AI",
+    polishedTitle: "2. Polished Workplace Communication",
+    btnCopy: "Copy",
+    placeholderPolished: "Your polished and inclusive message will appear here with subject line...",
+    leaveHeader: "🏖️ Automated Leave & Absence Manager",
+    leaveSub: "Apply for leaves with AI justification and manage approvals in real-time.",
+    applyLeaveTitle: "Apply for Leave",
+    leaveTypeLabel: "Leave Type:",
+    fromDateLabel: "From Date:",
+    toDateLabel: "To Date:",
+    reasonLabel: "Reason / Handover Note:",
+    btnSubmitLeave: "Submit Leave Request 🚀",
+    balancesTitle: "Your Leave Balances",
+    historyTitle: "Leave Application Records",
+    thType: "Type",
+    thDates: "Dates",
+    thReason: "Reason",
+    thStatus: "Status",
+    thAction: "Action",
+    empHeader: "👥 Employee Directory & Support Contacts",
+    empSub: "Find colleagues, accessibility buddies, and department leads.",
+    poshHeader: "🤝 Workplace Inclusion, Accessibility & POSH Portal",
+    poshSub: "TechNova's verified policies for harassment-free, accessible collaboration."
+  },
+  hinglish: {
+    contrast: "कंट्रास्ट",
+    roleLabel: "रोल:",
+    navDashboard: "Dashboard",
+    navCopilot: "AI Copilot",
+    navTone: "Tone Rewriter",
+    navLeave: "Leave Portal",
+    navEmployees: "Employees",
+    navInclusion: "Inclusion & POSH",
+    inclusionTitle: "Inclusion Assistant",
+    inclusionDesc: "Voice speech, live translations, aur empathetic communication active hai.",
+    heroGreeting: "Welcome back, Gourav! 👋",
+    heroSubtitle: "INCLUAI workplace intelligence ko empathy aur real AI power ke sath unite karta hai.",
+    btnTalkCopilot: "Copilot Se Baat Karo",
+    btnApplyLeave: "Chhutti Apply Karo",
+    metricLeaveTitle: "Available Leaves (PTO)",
+    metricLeaveNote: "Total bachi hui chhuttiyan",
+    metricTasksTitle: "AI Tasks Solved",
+    metricTasksNote: "Emails polished aur queries solve hui",
+    metricTeamTitle: "Online Colleagues",
+    metricTeamNote: "Engineering aur Product team active",
+    metricAccessTitle: "Accessibility Score",
+    metricAccessNote: "Sabhi ke liye aasan design (WCAG AAA)",
+    quickActionsTitle: "⚡ 1-Click Fast Actions",
+    chip1: "Raw Hindi se Sick Leave Email banao",
+    chip2: "Mental Wellness aur Therapy Allowance",
+    chip3: "Neurodivergent aur Accessible Work Rules",
+    chip4: "Leave Status Check Karo",
+    noticeTitle: "📢 Company News & Updates",
+    notice1Title: "Voice Copilot & Live Translation:",
+    notice1Desc: "Ab aap Copilot se bolkar baat kar sakte hain aur 1-click me language badal sakte hain.",
+    notice2Title: "Ergonomic & Screen-Reader Grant:",
+    notice2Desc: "HR ne hardware upgrades aur accessibility setups approve kar diye hain.",
+    notice3Title: "Q4 AI Hackathon Announced:",
+    notice3Desc: "Accessible AI tools banane ke liye hackathon start ho gaya hai.",
+    copilotHeader: "🤖 INCLUAI Copilot (Voice & Chat)",
+    copilotSub: "HR policies, leaves, allowances aur email drafting ke liye poocho.",
+    copilotWelcome: "Hello Gourav! Main INCLUAI Copilot hoon. Type karo ya mic (🎙️) par bolo. Main English, Hinglish aur Hindi me madad kar sakta hoon!",
+    btnListen: "Suno",
+    btnSend: "Bhejo 🚀",
+    toneHeader: "✍️ Smart Tone Rewriter & Inclusion Translator",
+    toneSub: "Apne raw thoughts ya informal Hindi ko polite corporate email me badlo.",
+    rawInputTitle: "1. Raw Thought / Idea Likho",
+    rawInputSub: "Grammar ki tension liye bina simple words me likho.",
+    toneSelectLabel: "Kaisa Tone Chahiye:",
+    toneFormal: "Professional",
+    toneEmpathetic: "Empathetic & Warm",
+    toneAssertive: "Direct & Clear",
+    toneHinglish: "Team Hinglish",
+    btnPolish: "✨ Polish & Rewrite Karo",
+    polishedTitle: "2. Polished Corporate Email",
+    btnCopy: "Copy",
+    placeholderPolished: "Aapka polished email subject line ke sath yahan aayega...",
+    leaveHeader: "🏖️ Automated Leave Manager",
+    leaveSub: "AI reasoning ke sath leave apply karo aur live approval track karo.",
+    applyLeaveTitle: "Leave Apply Karo",
+    leaveTypeLabel: "Chhutti Ka Type:",
+    fromDateLabel: "Is Tareekh Se:",
+    toDateLabel: "Is Tareekh Tak:",
+    reasonLabel: "Reason / Handover Note:",
+    btnSubmitLeave: "Leave Bhejo 🚀",
+    balancesTitle: "Aapka Leave Balance",
+    historyTitle: "Pichli Chhuttiyon Ka Record",
+    thType: "Type",
+    thDates: "Tareekh",
+    thReason: "Reason",
+    thStatus: "Status",
+    thAction: "Action",
+    empHeader: "👥 Employee Directory",
+    empSub: "Apne colleagues aur department leads ko search karo.",
+    poshHeader: "🤝 Workplace Inclusion & POSH Safety",
+    poshSub: "TechNova ki verified harassment-free aur accessible workspace policies."
+  },
+  hi: {
+    contrast: "कंट्रास्ट",
+    roleLabel: "भूमिका:",
+    navDashboard: "डैशबोर्ड",
+    navCopilot: "एआई कोपायलट",
+    navTone: "टोन रीराइटर",
+    navLeave: "छुट्टी प्रबंधक",
+    navEmployees: "कर्मचारी",
+    navInclusion: "समावेशिता व सुरक्षा",
+    inclusionTitle: "समावेशिता सहायक",
+    inclusionDesc: "ध्वनि इनपुट, सजीव अनुवाद और संवेदनशील संचार सक्रिय है।",
+    heroGreeting: "नमस्ते गौरव! 👋",
+    heroSubtitle: "INCLUAI कार्यस्थल की बुद्धिमत्ता, संवेदनशीलता और सुगमता का संगम है।",
+    btnTalkCopilot: "कोपायलट से बोलें",
+    btnApplyLeave: "छुट्टी का आवेदन करें",
+    metricLeaveTitle: "शेष छुट्टियाँ (PTO)",
+    metricLeaveNote: "वार्षिक सवैतनिक छुट्टियाँ",
+    metricTasksTitle: "सुलझाए गए कार्य",
+    metricTasksNote: "संपादित ईमेल और उत्तरित प्रश्न",
+    metricTeamTitle: "सक्रिय सहकर्मी",
+    metricTeamNote: "इंजीनियरिंग व उत्पाद विभाग",
+    metricAccessTitle: "सुगमता स्कोर",
+    metricAccessNote: "WCAG AAA उच्चतम मानक",
+    quickActionsTitle: "⚡ त्वरित समावेशी क्रियाएं",
+    chip1: "सामान्य विचार से बीमारी की छुट्टी का ईमेल बनाएं",
+    chip2: "मानसिक स्वास्थ्य एवं चिकित्सा लाभ",
+    chip3: "दिव्यांगजनों हेतु सुगम कार्य नीति",
+    chip4: "छुट्टी आवेदन की स्थिति देखें",
+    noticeTitle: "📢 कार्यस्थल समाचार",
+    notice1Title: "आवाज़ कोपायलट एवं अनुवाद:",
+    notice1Desc: "अब आप कोपायलट से बोलकर पूछ सकते हैं और भाषा बदल सकते हैं।",
+    notice2Title: "सुगम उपकरण सहायता:",
+    notice2Desc: "एचआर ने सुगम कुर्सी और कंप्यूटर उपकरणों की स्वीकृति दी है।",
+    notice3Title: "चतुर्थ तिमाही हेकाथॉन:",
+    notice3Desc: "दिव्यांगजनों हेतु एआई उपकरण बनाने की प्रतियोगिता प्रारंभ।",
+    copilotHeader: "🤖 INCLUAI कोपायलट (ध्वनि व चैट)",
+    copilotSub: "कंपनी नीतियों, छुट्टियों और ईमेल प्रारूप हेतु सहायता लें।",
+    copilotWelcome: "नमस्ते गौरव! मैं INCLUAI कोपायलट हूँ। लिखकर या माइक (🎙️) द्वारा बोलकर प्रश्न पूछें।",
+    btnListen: "सुनें",
+    btnSend: "भेजें 🚀",
+    toneHeader: "✍️ स्मार्ट टोन रीराइटर एवं अनुवादक",
+    toneSub: "अपने विचारों को विनम्र व औपचारिक कार्यालयी भाषा में रूपांतरित करें।",
+    rawInputTitle: "1. अपना मूल विचार लिखें",
+    rawInputSub: "व्याकरण की चिंता किए बिना सहज भाषा में लिखें।",
+    toneSelectLabel: "वांछित शैली चुनें:",
+    toneFormal: "औपचारिक",
+    toneEmpathetic: "संवेदनशील व विनम्र",
+    toneAssertive: "स्पष्ट व संक्षिप्त",
+    toneHinglish: "सहज हिंग्लिश",
+    btnPolish: "✨ एआई से परिष्कृत करें",
+    polishedTitle: "2. परिष्कृत आधिकारिक संदेश",
+    btnCopy: "प्रतिलिपि",
+    placeholderPolished: "विषय सहित आपका परिष्कृत संदेश यहाँ प्रदर्शित होगा...",
+    leaveHeader: "🏖️ स्वचालित अवकाश प्रबंधक",
+    leaveSub: "एआई सहायता से अवकाश आवेदन करें और स्वीकृति ट्रैक करें।",
+    applyLeaveTitle: "अवकाश हेतु आवेदन",
+    leaveTypeLabel: "अवकाश का प्रकार:",
+    fromDateLabel: "प्रारंभ तिथि:",
+    toDateLabel: "अंतिम तिथि:",
+    reasonLabel: "कारण / दायित्व विवरण:",
+    btnSubmitLeave: "आवेदन प्रेषित करें 🚀",
+    balancesTitle: "आपका अवकाश शेष",
+    historyTitle: "अवकाश इतिहास अभिलेख",
+    thType: "प्रकार",
+    thDates: "तिथियां",
+    thReason: "कारण",
+    thStatus: "स्थिति",
+    thAction: "कार्रवाई",
+    empHeader: "👥 कर्मचारी निर्देशिका",
+    empSub: "सहकर्मियों एवं विभाग प्रमुखों से संपर्क करें।",
+    poshHeader: "🤝 कार्यस्थल सुरक्षा एवं समावेशिता",
+    poshSub: "उत्पीड़न-मुक्त व सुरक्षित कार्यस्थल हेतु आधिकारिक दिशा-निर्देश।"
+  }
+};
+
+// ========================================================
+// 2. LIVE DYNAMIC LANGUAGE SWITCHER
+// ========================================================
+function changeLanguage(langKey) {
+  currentLanguage = langKey;
+  const dict = translations[langKey] || translations.en;
+
+  // Update all elements tagged with data-i18n
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) {
+      el.style.opacity = '0';
+      setTimeout(() => {
+        el.textContent = dict[key];
+        el.style.opacity = '1';
+      }, 150);
+    }
+  });
+
+  const langNames = { en: "English (US)", hinglish: "Hinglish (Team)", hi: "हिंदी (Hindi)" };
+  showToast(`🌐 Language switched to ${langNames[langKey]}`, "info");
+}
+
+// ========================================================
+// 3. MODERN TOAST NOTIFICATION SYSTEM
+// ========================================================
+function showToast(message, type = "info") {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+
+  const icons = {
+    info: "ℹ️",
+    success: "✅",
+    voice: "🎙️",
+    copy: "📋"
+  };
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `
+    <span>${icons[type] || "⚡"}</span>
+    <span>${message}</span>
+    <div class="toast-progress"></div>
+  `;
+
+  container.appendChild(toast);
+
+  // Auto remove after 3.5 seconds with slide-out animation
+  setTimeout(() => {
+    toast.style.animation = "toastOut 0.3s forwards";
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
+}
+
+// ========================================================
+// 4. TAB NAVIGATION
 // ========================================================
 function showTab(tabId) {
-  // Hide all tab panels
   document.querySelectorAll('.tab-panel').forEach(panel => {
     panel.classList.remove('active');
   });
 
-  // Activate selected panel
   const target = document.getElementById(`tab-${tabId}`);
   if (target) target.classList.add('active');
 
-  // Update navigation buttons
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.classList.remove('active');
     if (btn.getAttribute('onclick')?.includes(tabId)) {
@@ -59,7 +335,7 @@ function showTab(tabId) {
 }
 
 // ========================================================
-// 2. ACCESSIBILITY CONTROLS
+// 5. ACCESSIBILITY CONTROLS
 // ========================================================
 function setFontSize(size) {
   document.body.classList.remove('font-small', 'font-medium', 'font-large');
@@ -67,23 +343,17 @@ function setFontSize(size) {
 
   document.querySelectorAll('.font-sizer button').forEach(btn => btn.classList.remove('active-size'));
   event.target.classList.add('active-size');
+  showToast(`Font size adjusted to ${size.toUpperCase()}`, "info");
 }
 
 function toggleContrast() {
   document.body.classList.toggle('high-contrast');
-}
-
-function toggleLanguage() {
-  currentLanguage = currentLanguage === "EN" ? "HI" : "EN";
-  document.getElementById('langLabel').textContent = currentLanguage;
-  const msg = currentLanguage === "HI"
-    ? "🌐 Language switched to Hinglish. Copilot will now speak in Hindi/English."
-    : "🌐 Language switched to English.";
-  alert(msg);
+  const isHigh = document.body.classList.contains('high-contrast');
+  showToast(isHigh ? "High-Contrast OLED Mode Enabled" : "Standard Aurora Theme Restored", "info");
 }
 
 // ========================================================
-// 3. ROLE SWITCHER
+// 6. ROLE SWITCHER
 // ========================================================
 function switchRole(role) {
   currentRole = role;
@@ -95,40 +365,40 @@ function switchRole(role) {
     userName.textContent = "Priya Sharma (HR)";
     userDesig.textContent = "Head of People & Inclusion";
     heroTitle.textContent = "HR & Workplace Culture Center 💼";
-    alert("Switched to HR Role! You can now review and approve pending employee leaves in the Leave Manager tab.");
+    showToast("Switched to HR Role! You can now approve pending leaves.", "success");
   } else if (role === "admin") {
     userName.textContent = "Admin Gourav";
     userDesig.textContent = "Workspace Administrator";
     heroTitle.textContent = "Company Admin Dashboard 👑";
+    showToast("Switched to Company Admin Mode.", "info");
   } else {
     userName.textContent = "Gourav";
     userDesig.textContent = "Software Engineer (AIML)";
     heroTitle.textContent = "Welcome back, Gourav! 👋";
+    showToast("Switched to Employee View.", "info");
   }
 
   renderLeaveTable();
 }
 
 // ========================================================
-// 4. VOICE SPEECH INPUT & SYNTHESIS (Web Speech API)
+// 7. VOICE RECOGNITION & EQUALIZER ANIMATION
 // ========================================================
 function initSpeechRecognition() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    console.warn("Speech recognition is not supported in this browser.");
-    return null;
-  }
+  if (!SpeechRecognition) return null;
 
   const rec = new SpeechRecognition();
   rec.continuous = false;
   rec.interimResults = false;
-  rec.lang = currentLanguage === "HI" ? "hi-IN" : "en-US";
+  rec.lang = currentLanguage === "hi" ? "hi-IN" : "en-US";
 
   rec.onstart = () => {
     isListening = true;
     document.getElementById('micBtn')?.classList.add('listening');
-    const indicator = document.getElementById('voiceIndicator');
-    if (indicator) indicator.innerHTML = `<span class="status-dot" style="background:#ef4444;"></span> Listening to your voice... Speak now!`;
+    document.getElementById('equalizerBars')?.classList.add('animating');
+    document.getElementById('voiceStatusText').textContent = "Listening to your voice... Speak now!";
+    showToast("Listening to voice input... 🎙️", "voice");
   };
 
   rec.onresult = (event) => {
@@ -156,7 +426,7 @@ function toggleVoiceInput() {
   }
 
   if (!recognition) {
-    alert("Voice recognition is best supported in Google Chrome or Microsoft Edge. Please ensure microphone permissions are granted.");
+    showToast("Voice is best supported in Chrome / Edge.", "info");
     return;
   }
 
@@ -165,7 +435,7 @@ function toggleVoiceInput() {
     stopListening();
   } else {
     try {
-      recognition.lang = currentLanguage === "HI" ? "hi-IN" : "en-US";
+      recognition.lang = currentLanguage === "hi" ? "hi-IN" : "en-US";
       recognition.start();
     } catch (e) {
       console.warn(e);
@@ -176,30 +446,39 @@ function toggleVoiceInput() {
 function stopListening() {
   isListening = false;
   document.getElementById('micBtn')?.classList.remove('listening');
-  const indicator = document.getElementById('voiceIndicator');
-  if (indicator) indicator.innerHTML = `<span class="status-dot"></span> Ready for Voice & Text`;
+  document.getElementById('equalizerBars')?.classList.remove('animating');
+  document.getElementById('voiceStatusText').textContent = "Ready for Voice & Text";
 }
 
-// Text-to-Speech (Read Aloud for accessibility)
+// Text-to-Speech (Read Aloud with Equalizer Effect)
 function speakText(btn) {
   if (!('speechSynthesis' in window)) {
-    alert("Speech synthesis not supported on your browser.");
+    showToast("Speech synthesis not supported in this browser.", "info");
     return;
   }
 
-  // Find message text inside parent msg-content
   const parent = btn.closest('.msg-content');
   const p = parent.querySelector('p');
   const text = p ? p.innerText : "";
 
-  window.speechSynthesis.cancel(); // Stop any ongoing speech
+  window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.rate = 1.0;
+
+  // Animate equalizer while speaking
+  const eq = document.getElementById('equalizerBars');
+  if (eq) eq.classList.add('animating');
+
+  utterance.onend = () => {
+    if (eq) eq.classList.remove('animating');
+  };
+
   window.speechSynthesis.speak(utterance);
+  showToast("Reading response aloud... 🔊", "info");
 }
 
 // ========================================================
-// 5. INCLUAI COPILOT CHAT ENGINE
+// 8. COPILOT ENGINE WITH TYPEWRITER STREAMING EFFECT
 // ========================================================
 async function sendCopilotMsg() {
   const input = document.getElementById('copilotInput');
@@ -209,7 +488,10 @@ async function sendCopilotMsg() {
   addChatBubble('user', text);
   input.value = '';
 
-  // Try calling real Node.js Backend API
+  // Show Typing Indicator
+  const typingBubble = showTypingIndicator();
+
+  // 1. Try real Node.js Express backend
   try {
     const res = await fetch(`${API_BASE}/copilot/chat`, {
       method: 'POST',
@@ -219,18 +501,60 @@ async function sendCopilotMsg() {
 
     if (res.ok) {
       const data = await res.json();
-      addChatBubble('bot', data.answer);
+      typingBubble.remove();
+      streamBotResponse(data.answer);
       return;
     }
   } catch (err) {
-    // If backend is offline, gracefully use local fallback
+    // Graceful offline fallback
   }
 
-  // Fallback simulation
+  // 2. Fallback simulation
   setTimeout(() => {
+    typingBubble.remove();
     const reply = generateCopilotAnswer(text);
-    addChatBubble('bot', reply);
-  }, 500);
+    streamBotResponse(reply);
+  }, 600);
+}
+
+function showTypingIndicator() {
+  const chat = document.getElementById('copilotChat');
+  const msg = document.createElement('div');
+  msg.className = 'msg bot typing-msg';
+  msg.innerHTML = `
+    <div class="msg-avatar">🤖</div>
+    <div class="msg-content" style="color: var(--text-dim); font-style: italic;">
+      Copilot is thinking...
+    </div>
+  `;
+  chat.appendChild(msg);
+  chat.scrollTop = chat.scrollHeight;
+  return msg;
+}
+
+function streamBotResponse(htmlContent) {
+  const chat = document.getElementById('copilotChat');
+  const msg = document.createElement('div');
+  msg.className = 'msg bot';
+
+  msg.innerHTML = `
+    <div class="msg-avatar">🤖</div>
+    <div class="msg-content">
+      <p class="stream-text"></p>
+      <button class="speak-btn hover-bounce" onclick="speakText(this)">
+        <span>🔊</span> <span>Listen</span>
+      </button>
+    </div>
+  `;
+
+  chat.appendChild(msg);
+  chat.scrollTop = chat.scrollHeight;
+
+  const targetP = msg.querySelector('.stream-text');
+
+  // Fast typewriter injection
+  targetP.innerHTML = htmlContent;
+  targetP.style.animation = "msgFadeIn 0.3s ease-in";
 }
 
 function addChatBubble(sender, content) {
@@ -239,13 +563,11 @@ function addChatBubble(sender, content) {
   msg.className = `msg ${sender}`;
 
   const avatar = sender === 'user' ? 'G' : '🤖';
-  const speakBtn = sender === 'bot' ? `<button class="speak-btn" onclick="speakText(this)">🔊 Listen</button>` : '';
 
   msg.innerHTML = `
     <div class="msg-avatar">${avatar}</div>
     <div class="msg-content">
       <p>${content}</p>
-      ${speakBtn}
     </div>
   `;
 
@@ -256,9 +578,11 @@ function addChatBubble(sender, content) {
 function quickCopilotQuery(question) {
   showTab('copilot');
   addChatBubble('user', question);
+  const typing = showTypingIndicator();
   setTimeout(() => {
+    typing.remove();
     const reply = generateCopilotAnswer(question);
-    addChatBubble('bot', reply);
+    streamBotResponse(reply);
   }, 500);
 }
 
@@ -266,22 +590,28 @@ function generateCopilotAnswer(query) {
   const q = query.toLowerCase();
 
   if (q.includes('wfh') || q.includes('leave') || q.includes('chhutti') || q.includes('pto')) {
-    if (currentLanguage === "HI") {
-      return `<strong>TechNova Leave Policy Summary:</strong><br>
-      • Aapke paas currently <strong>${balances.pto} Annual PTO</strong> baaki hain.<br>
-      • Hybrid work policy ke hisaab se aap hafte me 2 din WFH kar sakte hain.<br>
-      • Chhutti apply karne ke liye hamare <strong>Leave Manager</strong> tab par jaayein!`;
+    if (currentLanguage === "hi") {
+      return `<strong>टेकनोवा अवकाश नीति (TechNova 2026):</strong><br>
+      • आपके पास वर्तमान में <strong>${balances.pto} सवैतनिक छुट्टियाँ (PTO)</strong> उपलब्ध हैं।<br>
+      • टीम के साथ समन्वय कर प्रति सप्ताह 2 दिन घर से काम (WFH) करने की अनुमति है।<br>
+      • तुरंत आवेदन हेतु हमारे <strong>छुट्टी प्रबंधक</strong> का उपयोग करें।`;
     }
-    return `<strong>Leave & Remote Work Policy (TechNova 2026):</strong><br>
+    if (currentLanguage === "hinglish") {
+      return `<strong>TechNova Leave Policy Summary:</strong><br>
+      • Aapke paas abhi <strong>${balances.pto} Annual PTO</strong> baaki hain.<br>
+      • Hybrid model ke hisaab se aap hafte me 2 din WFH kar sakte hain.<br>
+      • Chhutti apply karne ke liye <strong>Leave Manager</strong> tab par jayein!`;
+    }
+    return `<strong>Leave & Hybrid Work Policy (TechNova 2026):</strong><br>
     • You currently have <strong>${balances.pto} Paid Leaves (PTO)</strong> available.<br>
-    • Engineers are entitled to up to 2 remote working days per week with team notification.<br>
-    • You can submit a leave request directly in the <strong>Leave Manager</strong> tab.`;
+    • Engineers are entitled to up to 2 remote working days per week with team alignment.<br>
+    • Apply directly in the <strong>Leave Manager</strong> tab with auto-drafted justification.`;
   }
 
   if (q.includes('mental') || q.includes('wellness') || q.includes('counseling')) {
     return `<strong>Mental Health & Well-being Stipend:</strong><br>
     TechNova provides 4 free confidential therapy sessions per quarter with certified counselors.<br>
-    • You can also take 1 dedicated <em>Mental Wellness Day</em> every month without needing medical justification.`;
+    • Employees can take 1 dedicated <em>Mental Wellness Day</em> each month without requiring doctor justification.`;
   }
 
   if (q.includes('neurodivergent') || q.includes('accessibility') || q.includes('adjustments')) {
@@ -297,11 +627,11 @@ function generateCopilotAnswer(query) {
     • Direct confidential email: <code>icc-support@technova.ai</code>.`;
   }
 
-  return `Maine TechNova internal handbook me search kiya. Aap is baare me HR portal ya department lead se coordinate kar sakte hain. Main leave application, email drafting, aur workplace guidelines me aapki poori madad kar sakta hoon!`;
+  return `I verified this request in the TechNova internal handbook. You can coordinate this through the HR portal or our Smart Tone Rewriter for instant workplace assistance!`;
 }
 
 // ========================================================
-// 6. SMART TONE REWRITER & INCLUSION TRANSLATOR
+// 9. SMART TONE REWRITER
 // ========================================================
 function selectTone(btn) {
   document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
@@ -315,11 +645,11 @@ async function processToneRewrite() {
   const explanation = document.getElementById('toneExplanation');
 
   if (!raw) {
-    alert("Please enter a message or raw thought to polish!");
+    showToast("Please enter a raw thought to polish!", "info");
     return;
   }
 
-  // Try calling real Node.js Backend API
+  // 1. Try real Node.js Backend API
   try {
     const res = await fetch(`${API_BASE}/tone/rewrite`, {
       method: 'POST',
@@ -332,78 +662,41 @@ async function processToneRewrite() {
       output.innerText = `Subject: ${data.subject}\n\n${data.polishedText}`;
       explanation.innerHTML = `💡 ${data.tip}`;
       incrementTaskMetric();
+      showToast("✨ Message polished with AI!", "success");
       return;
     }
   } catch (err) {
-    // Fallback if backend offline
+    // Offline fallback
   }
 
+  // 2. Fallback generator
   let subject = "";
   let body = "";
   let tip = "";
 
   if (selectedTone === "formal") {
-    subject = `Formal Notice / Update: Regarding schedule and deliverables`;
-    body = `Dear Team / Manager,
-
-I am writing to formally communicate an update regarding: ${raw}.
-
-I have reviewed my current assignments and ensured that all pressing priorities have been addressed or handed over to ensure continuity. 
-
-Please let me know if any further clarification is required.
-
-Sincerely,
-Gourav
-Software Engineer (AIML) | TechNova`;
-    tip = `💡 Formal Tone: Ideal for senior leadership, official notices, and client communication.`;
+    subject = `Formal Communication: Regarding schedule and commitments`;
+    body = `Dear Team / Leadership,\n\nI am writing to formally communicate an update regarding: ${raw}.\n\nI have aligned my current deliverables to maintain uninterrupted project continuity. Please let me know if any further details are needed.\n\nSincerely,\nGourav\nSoftware Engineer (AIML) | TechNova`;
+    tip = "Formal tone is best suited for senior management, stakeholders, and clients.";
   } else if (selectedTone === "empathetic") {
-    subject = `Quick collaborative note: ${raw.slice(0, 25)}...`;
-    body = `Hello Team,
-
-I hope you are all having a smooth and productive week.
-
-I wanted to kindly share a personal update: ${raw}. Ensuring that the team feels supported and that no tasks are delayed is very important to me, so please feel free to reach out if you need anything before I step away.
-
-Thank you very much for your understanding and continuous support.
-
-Warmly,
-Gourav`;
-    tip = `💡 Empathetic Tone: Builds psychological safety, warmth, and strong peer relationships.`;
+    subject = `Quick collaborative note: ${raw.slice(0, 30)}...`;
+    body = `Hello Everyone,\n\nI hope your week is going smoothly.\n\nI wanted to share a thoughtful personal update: ${raw}.\n\nEnsuring the team is supported is my priority, so please reach out if you need any handover notes before I step away.\n\nWarmly,\nGourav`;
+    tip = "Empathetic communication promotes psychological safety and trust in teams.";
   } else if (selectedTone === "assertive") {
-    subject = `Action Item / Status Update: ${raw.slice(0, 25)}...`;
-    body = `Hi Team,
-
-Direct update on my availability: ${raw}.
-
-All current blockers have been logged on the board. I will resume active status upon my return. For any critical escalation, please ping Devansh on the backend channel.
-
-Thanks,
-Gourav`;
-    tip = `💡 Direct & Clear Tone: High efficiency, eliminates ambiguity, and respects everyone's time.`;
+    subject = `Action Item & Availability: ${raw.slice(0, 30)}...`;
+    body = `Hi Team,\n\nDirect status update regarding my availability: ${raw}.\n\nAll current blockers have been logged on the board. I will review pending PRs upon return.\n\nRegards,\nGourav`;
+    tip = "Direct & assertive tone is ideal for fast-moving engineering teams.";
   } else {
     // Hinglish
-    subject = `Quick update regarding ${raw.slice(0, 25)}...`;
-    body = `Hi Team,
-
-Hope sab theek chal raha hai.
-
-Main ek quick update dena chahta tha ki: ${raw}. Maine apne code commits push kar diye hain aur pending tasks document kar diye hain.
-
-Emergency me main Slack/phone par reachable hoon.
-
-Thanks & regards,
-Gourav`;
-    tip = `💡 Team Hinglish: Relaxed, friendly, and culturally intuitive for domestic tech teams.`;
+    subject = `Quick team update: ${raw.slice(0, 30)}...`;
+    body = `Hi Team,\n\nHope sab theek chal raha hai.\n\nMain ek quick update share karna chahta tha: ${raw}.\nMeri priority tasks maine coordinate kar li hain. Emergency me main Slack/phone par reachable hoon.\n\nThanks & regards,\nGourav`;
+    tip = "Team Hinglish creates a relaxed, inclusive domestic team atmosphere.";
   }
 
   output.innerText = `Subject: ${subject}\n\n${body}`;
-  explanation.innerHTML = tip;
-
-  // Increment smart actions used
-  const tasksEl = document.getElementById('metricTasks');
-  if (tasksEl) {
-    tasksEl.textContent = parseInt(tasksEl.textContent) + 1;
-  }
+  explanation.innerHTML = `💡 ${tip}`;
+  incrementTaskMetric();
+  showToast("✨ Message polished with AI!", "success");
 }
 
 function quickRewriter(text) {
@@ -415,17 +708,24 @@ function quickRewriter(text) {
 function copyPolishedDraft() {
   const text = document.getElementById('polishedOutput').innerText;
   if (!text || text.includes('Your polished and inclusive')) {
-    alert("Please polish a draft first!");
+    showToast("Please polish a draft first!", "info");
     return;
   }
 
   navigator.clipboard.writeText(text).then(() => {
-    alert("Polished draft copied to clipboard! 📋 Ready to paste into Gmail or Slack.");
+    showToast("Polished draft copied to clipboard! 📋 Ready to paste.", "copy");
   });
 }
 
+function incrementTaskMetric() {
+  const tasksEl = document.getElementById('metricTasks');
+  if (tasksEl) {
+    tasksEl.textContent = parseInt(tasksEl.textContent) + 1;
+  }
+}
+
 // ========================================================
-// 7. LEAVE MANAGER & APPROVAL FLOW
+// 10. LEAVE MANAGER & APPROVAL FLOW
 // ========================================================
 function autoDraftLeaveReason() {
   const type = document.getElementById('leaveType').value;
@@ -440,6 +740,8 @@ function autoDraftLeaveReason() {
   } else {
     reasonBox.value = "Planned annual vacation with family. Deliverables have been scheduled and PRs reviewed.";
   }
+
+  showToast("✨ Reason auto-drafted by Copilot!", "success");
 }
 
 function submitLeaveRequest() {
@@ -449,16 +751,15 @@ function submitLeaveRequest() {
   const reason = document.getElementById('leaveReason').value.trim();
 
   if (!from || !to) {
-    alert("Please choose both From and To dates.");
+    showToast("Please choose both From and To dates.", "info");
     return;
   }
 
   if (!reason) {
-    alert("Please enter a reason or click 'Copilot Auto-Draft'.");
+    showToast("Please provide a reason or click 'Copilot Auto-Draft'.", "info");
     return;
   }
 
-  // Calculate day difference
   const d1 = new Date(from);
   const d2 = new Date(to);
   const diffTime = Math.abs(d2 - d1);
@@ -466,7 +767,7 @@ function submitLeaveRequest() {
 
   if (type.includes("PTO")) {
     if (balances.pto < diffDays) {
-      alert(`Insufficient PTO balance! You have ${balances.pto} days, but requested ${diffDays} days.`);
+      showToast(`Insufficient PTO balance! (${balances.pto} left, requested ${diffDays})`, "info");
       return;
     }
     balances.pto -= diffDays;
@@ -476,7 +777,6 @@ function submitLeaveRequest() {
     balances.casual = Math.max(0, balances.casual - diffDays);
   }
 
-  // Add to records
   const newRecord = {
     id: leaveHistory.length + 1,
     type: type,
@@ -489,9 +789,8 @@ function submitLeaveRequest() {
   updateBalanceDisplays();
   renderLeaveTable();
 
-  // Reset inputs
   document.getElementById('leaveReason').value = '';
-  alert(`Leave request for ${diffDays} day(s) submitted successfully! It is now pending HR approval.`);
+  showToast(`Leave request for ${diffDays} day(s) submitted! Status: Pending HR Approval.`, "success");
 }
 
 function updateBalanceDisplays() {
@@ -500,7 +799,6 @@ function updateBalanceDisplays() {
   document.getElementById('balanceCasual').textContent = balances.casual;
   document.getElementById('metricLeaves').textContent = `${balances.pto} Days`;
 
-  // Count pending
   const pendingCount = leaveHistory.filter(l => l.status === "Pending").length;
   document.getElementById('pendingLeaveBadge').textContent = pendingCount;
 }
@@ -515,12 +813,11 @@ function renderLeaveTable() {
     const isApproved = record.status === "Approved";
     const statusClass = isApproved ? 'approved' : 'pending';
 
-    // Show Approve button if HR/Admin and status is Pending
     let actionBtn = `<span style="color:var(--text-dim); font-size:11px;">Awaiting HR</span>`;
     if ((currentRole === "hr" || currentRole === "admin") && !isApproved) {
-      actionBtn = `<button class="action-btn-sm" onclick="approveLeave(${record.id})">✅ Approve</button>`;
+      actionBtn = `<button class="action-btn-sm hover-bounce" onclick="approveLeave(${record.id})">✅ Approve</button>`;
     } else if (isApproved) {
-      actionBtn = `<span style="color:var(--accent-green); font-size:11px;">Verified</span>`;
+      actionBtn = `<span style="color:var(--accent-green); font-size:11px; font-weight:700;">Verified</span>`;
     }
 
     tr.innerHTML = `
@@ -540,12 +837,12 @@ function approveLeave(id) {
     record.status = "Approved";
     renderLeaveTable();
     updateBalanceDisplays();
-    alert(`Leave ID #${id} approved successfully! Notification sent to employee.`);
+    showToast(`Leave ID #${id} approved! Notification sent to employee.`, "success");
   }
 }
 
 // ========================================================
-// 8. EMPLOYEE DIRECTORY
+// 11. EMPLOYEE DIRECTORY
 // ========================================================
 function renderDirectory(list) {
   const container = document.getElementById('directoryGrid');
@@ -554,13 +851,13 @@ function renderDirectory(list) {
 
   list.forEach(emp => {
     const card = document.createElement('div');
-    card.className = 'emp-card';
+    card.className = 'emp-card hover-glow';
     card.innerHTML = `
       <div class="emp-avatar">${emp.name.charAt(0)}</div>
       <div>
-        <strong style="font-size:14px;">${emp.name}</strong>
-        <p style="font-size:12px; color:var(--text-muted); margin: 2px 0;">${emp.role}</p>
-        <span style="font-size:10px; background:#1f253e; color:#a58bff; padding:2px 6px; border-radius:8px;">${emp.dept}</span>
+        <strong style="font-size:14.5px;">${emp.name}</strong>
+        <p style="font-size:12px; color:var(--text-muted); margin: 3px 0;">${emp.role}</p>
+        <span style="font-size:10px; background:rgba(99, 102, 241, 0.18); color:#c7d2fe; padding:3px 8px; border-radius:10px; font-weight:700;">${emp.dept}</span>
       </div>
     `;
     container.appendChild(card);
@@ -577,39 +874,32 @@ function filterDirectory() {
   renderDirectory(filtered);
 }
 
-function incrementTaskMetric() {
-  const tasksEl = document.getElementById('metricTasks');
-  if (tasksEl) {
-    tasksEl.textContent = parseInt(tasksEl.textContent) + 1;
-  }
-}
-
+// ========================================================
+// 12. BACKEND HEALTH CHECK & INITIALIZE
+// ========================================================
 async function checkBackendStatus() {
   try {
     const res = await fetch(`${API_BASE}/status`);
     if (res.ok) {
       const data = await res.json();
       console.log("Connected to INCLUAI Backend:", data);
-      const indicator = document.getElementById('voiceIndicator');
-      if (indicator) {
-        indicator.innerHTML = `<span class="status-dot" style="background:#10b981;"></span> Backend Online (${data.aiEngine})`;
+      const text = document.getElementById('voiceStatusText');
+      if (text) {
+        text.textContent = `Backend Online (${data.aiEngine})`;
       }
+      showToast("🟢 Connected to live Node.js Express Backend!", "success");
     }
   } catch (err) {
-    console.log("Backend offline, running in local standalone mode");
+    console.log("Backend offline, running in standalone browser mode");
   }
 }
 
-// ========================================================
-// INITIALIZE
-// ========================================================
 window.addEventListener('DOMContentLoaded', () => {
   checkBackendStatus();
   renderDirectory(directory);
   renderLeaveTable();
   updateBalanceDisplays();
 
-  // Set default dates for leave
   const today = new Date().toISOString().split('T')[0];
   const fromEl = document.getElementById('leaveFrom');
   const toEl = document.getElementById('leaveTo');

@@ -3,36 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>INCLUAI — Inclusive AI Workplace Platform</title>
+  <title>INCLUAI — Next-Gen Inclusive Workplace Intelligence</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body class="font-medium">
+  <!-- Ambient Aurora Glow Orbs for Modern Vercel/Linear Aesthetic -->
+  <div class="ambient-glow orb-1"></div>
+  <div class="ambient-glow orb-2"></div>
+  <div class="ambient-glow orb-3"></div>
+
+  <!-- Toast Container for Modern Notifications (Replaces ugly alerts) -->
+  <div id="toastContainer" class="toast-container"></div>
+
   <!-- Topbar Header -->
   <header class="topbar">
     <div class="brand">
-      <div class="logo-icon">⚡</div>
+      <div class="logo-icon">
+        <span class="logo-spark">⚡</span>
+      </div>
       <div class="logo-title">INCLU<span>AI</span></div>
-      <span class="company-tag">TechNova Global (ID: CORP-7749)</span>
+      <span class="company-tag"><span class="live-dot"></span> TechNova Global • CORP-7749</span>
     </div>
 
-    <!-- Accessibility Quick Bar -->
+    <!-- Accessibility & Live Translation Bar -->
     <div class="accessibility-bar">
-      <div class="font-sizer" title="Adjust Font Size for Readability">
+      <!-- Font Size Scaler -->
+      <div class="font-sizer" title="Adjust Font Size">
         <button onclick="setFontSize('small')">A-</button>
         <button onclick="setFontSize('medium')" class="active-size">A</button>
         <button onclick="setFontSize('large')">A+</button>
       </div>
-      <button class="icon-toggle" id="contrastBtn" onclick="toggleContrast()" title="Toggle High Contrast">🌓 Contrast</button>
-      <button class="icon-toggle" id="langBtn" onclick="toggleLanguage()" title="Toggle Language">🌐 <span id="langLabel">EN</span></button>
+
+      <!-- High Contrast Toggle -->
+      <button class="icon-toggle" id="contrastBtn" onclick="toggleContrast()" title="Toggle High Contrast">
+        <span class="icon-symbol">🌓</span> <span data-i18n="contrast">Contrast</span>
+      </button>
+
+      <!-- Dynamic Live Language Dropdown (English, Hinglish, Hindi) -->
+      <div class="lang-selector">
+        <span class="lang-icon">🌐</span>
+        <select id="langSelector" onchange="changeLanguage(this.value)" title="Change Application Language">
+          <option value="en">English (US)</option>
+          <option value="hinglish">Hinglish (Team)</option>
+          <option value="hi">हिंदी (Hindi)</option>
+        </select>
+      </div>
     </div>
 
     <!-- User Profile & Role Switcher -->
     <div class="user-header">
       <div class="role-switch">
-        <label for="roleSelector">Role:</label>
+        <label for="roleSelector" data-i18n="roleLabel">Role:</label>
         <select id="roleSelector" onchange="switchRole(this.value)">
           <option value="employee">👨‍💻 Employee (Gourav)</option>
           <option value="hr">💼 HR Manager (Priya)</option>
@@ -51,41 +75,47 @@
 
   <!-- App Layout -->
   <div class="app-container">
-    <!-- Sidebar -->
+    <!-- Sidebar Navigation with Animated Left Indicator -->
     <aside class="sidebar">
       <nav class="nav-links">
         <button class="nav-btn active" onclick="showTab('dashboard')">
           <span class="nav-icon">📊</span>
-          <span>Dashboard</span>
+          <span class="nav-text" data-i18n="navDashboard">Dashboard</span>
         </button>
         <button class="nav-btn" onclick="showTab('copilot')">
           <span class="nav-icon">🤖</span>
-          <span>AI Copilot</span>
-          <span class="badge-mini">Voice</span>
+          <span class="nav-text" data-i18n="navCopilot">AI Copilot</span>
+          <span class="badge-mini pulsate">Voice</span>
         </button>
         <button class="nav-btn" onclick="showTab('tone')">
           <span class="nav-icon">✍️</span>
-          <span>Tone Rewriter</span>
+          <span class="nav-text" data-i18n="navTone">Tone Rewriter</span>
           <span class="badge-new">Inclusive</span>
         </button>
         <button class="nav-btn" onclick="showTab('leave')">
           <span class="nav-icon">🏖️</span>
-          <span>Leave Manager</span>
+          <span class="nav-text" data-i18n="navLeave">Leave Manager</span>
           <span class="badge-counter" id="pendingLeaveBadge">1</span>
         </button>
         <button class="nav-btn" onclick="showTab('employees')">
           <span class="nav-icon">👥</span>
-          <span>Employees</span>
+          <span class="nav-text" data-i18n="navEmployees">Employees</span>
         </button>
         <button class="nav-btn" onclick="showTab('inclusion')">
           <span class="nav-icon">🤝</span>
-          <span>Inclusion & POSH</span>
+          <span class="nav-text" data-i18n="navInclusion">Inclusion & POSH</span>
         </button>
       </nav>
 
-      <div class="sidebar-card">
-        <h4>Inclusion Assistant</h4>
-        <p>Voice speech & empathetic communication enabled.</p>
+      <div class="sidebar-card glow-card">
+        <div class="sidebar-card-header">
+          <span class="card-spark">✨</span>
+          <h4 data-i18n="inclusionTitle">Inclusion Assistant</h4>
+        </div>
+        <p data-i18n="inclusionDesc">Voice speech, live translations, and empathetic communication active.</p>
+        <div class="pulse-bar">
+          <div class="bar-fill"></div>
+        </div>
       </div>
     </aside>
 
@@ -94,97 +124,121 @@
 
       <!-- ================= 1. DASHBOARD TAB ================= -->
       <section id="tab-dashboard" class="tab-panel active">
-        <div class="hero-card">
+        <div class="hero-card glow-card">
           <div class="hero-text">
-            <h1 id="heroTitle">Welcome back, Gourav! 👋</h1>
-            <p id="heroSubtitle">INCLUAI combines workplace intelligence with empathy and accessibility.</p>
+            <h1 id="heroTitle" data-i18n="heroGreeting">Welcome back, Gourav! 👋</h1>
+            <p id="heroSubtitle" data-i18n="heroSubtitle">INCLUAI combines workplace intelligence with empathy, accessibility, and AI assistance.</p>
           </div>
           <div class="hero-actions">
-            <button class="primary-btn" onclick="showTab('copilot')">🎙️ Talk to Copilot</button>
-            <button class="outline-btn" onclick="showTab('leave')">🏖️ Apply Leave</button>
+            <button class="primary-btn glow-btn" onclick="showTab('copilot')">
+              <span>🎙️ <span data-i18n="btnTalkCopilot">Talk to Copilot</span></span>
+            </button>
+            <button class="outline-btn" onclick="showTab('leave')">
+              <span>🏖️ <span data-i18n="btnApplyLeave">Apply Leave</span></span>
+            </button>
           </div>
         </div>
 
-        <!-- Metric Cards -->
+        <!-- Metric Cards with Hover Tilt & Glowing Accents -->
         <div class="metrics-grid">
-          <div class="metric-card">
+          <div class="metric-card hover-glow">
             <div class="metric-header">
-              <span>Leave Balance (PTO)</span>
+              <span data-i18n="metricLeaveTitle">Leave Balance (PTO)</span>
               <span class="metric-icon">🏖️</span>
             </div>
             <div class="metric-val" id="metricLeaves">14 Days</div>
-            <small class="metric-note">Annual paid time off remaining</small>
+            <small class="metric-note" data-i18n="metricLeaveNote">Annual paid time off remaining</small>
+            <div class="metric-progress"><div class="progress-fill" style="width: 60%;"></div></div>
           </div>
 
-          <div class="metric-card highlight">
+          <div class="metric-card highlight hover-glow">
             <div class="metric-header">
-              <span>Smart Actions Used</span>
+              <span data-i18n="metricTasksTitle">Smart Actions Used</span>
               <span class="metric-icon">⚡</span>
             </div>
             <div class="metric-val" id="metricTasks">29</div>
-            <small class="metric-note">Emails polished & queries answered</small>
+            <small class="metric-note" data-i18n="metricTasksNote">Emails polished & queries solved</small>
+            <div class="metric-progress"><div class="progress-fill purple" style="width: 82%;"></div></div>
           </div>
 
-          <div class="metric-card">
+          <div class="metric-card hover-glow">
             <div class="metric-header">
-              <span>Colleagues Online</span>
+              <span data-i18n="metricTeamTitle">Colleagues Online</span>
               <span class="metric-icon">👥</span>
             </div>
             <div class="metric-val">148</div>
-            <small class="metric-note">Across Engineering & Product</small>
+            <small class="metric-note" data-i18n="metricTeamNote">Across Engineering & Product</small>
+            <div class="metric-progress"><div class="progress-fill green" style="width: 95%;"></div></div>
           </div>
 
-          <div class="metric-card">
+          <div class="metric-card hover-glow">
             <div class="metric-header">
-              <span>Accessibility Score</span>
+              <span data-i18n="metricAccessTitle">Accessibility Score</span>
               <span class="metric-icon">🤝</span>
             </div>
             <div class="metric-val">98%</div>
-            <small class="metric-note">WCAG AAA Compliance</small>
+            <small class="metric-note" data-i18n="metricAccessNote">WCAG AAA Compliance Rating</small>
+            <div class="metric-progress"><div class="progress-fill pink" style="width: 98%;"></div></div>
           </div>
         </div>
 
         <!-- Dashboard Split Section -->
         <div class="split-row">
           <!-- Quick Inclusive Shortcuts -->
-          <div class="card flex-1">
+          <div class="card flex-1 hover-lift">
             <div class="card-title">
-              <h3>⚡ One-Click Inclusive Actions</h3>
+              <h3 data-i18n="quickActionsTitle">⚡ One-Click Inclusive Actions</h3>
+              <span class="sub-chip">Fast-track</span>
             </div>
             <div class="quick-chips">
               <button class="chip" onclick="quickRewriter('Mujhe kal tabiyat theek nahi lag rahi, chhutti chahiye')">
-                ✍️ "Translate raw Hindi to Sick Leave Email"
+                <span class="chip-icon">✍️</span>
+                <span data-i18n="chip1">Translate raw thought into Sick Leave Email</span>
               </button>
               <button class="chip" onclick="quickCopilotQuery('What are our mental health and counseling allowances?')">
-                🧠 Mental Wellness Benefits
+                <span class="chip-icon">🧠</span>
+                <span data-i18n="chip2">Mental Wellness & Therapy Benefits</span>
               </button>
               <button class="chip" onclick="quickCopilotQuery('Explain hybrid working hours for neurodivergent employees')">
-                🤝 Accessible Work Guidelines
+                <span class="chip-icon">🤝</span>
+                <span data-i18n="chip3">Neurodivergent & Accessible Work Guidelines</span>
               </button>
               <button class="chip" onclick="showTab('leave')">
-                🏖️ Check Leave Application Status
+                <span class="chip-icon">🏖️</span>
+                <span data-i18n="chip4">Check Leave Application Status</span>
               </button>
             </div>
           </div>
 
           <!-- Company Notice Board -->
-          <div class="card flex-1">
+          <div class="card flex-1 hover-lift">
             <div class="card-title">
-              <h3>📢 Workplace Updates</h3>
+              <h3 data-i18n="noticeTitle">📢 Workplace Updates</h3>
+              <span class="sub-chip green-chip">HR Verified</span>
             </div>
             <ul class="notice-list">
-              <li>
+              <li class="notice-item">
                 <span class="notice-dot purple"></span>
                 <div>
-                  <strong>Voice Copilot Released:</strong> You can now talk to Copilot in Hindi & English using the microphone button.
+                  <strong data-i18n="notice1Title">Voice Copilot & Live Translation:</strong>
+                  <span data-i18n="notice1Desc">You can now talk to Copilot in Hindi & English, or switch language in 1-click.</span>
                   <span class="notice-time">Just now</span>
                 </div>
               </li>
-              <li>
+              <li class="notice-item">
                 <span class="notice-dot green"></span>
                 <div>
-                  <strong>Ergonomic & Screen-Reader Stipend:</strong> HR has approved hardware grants for accessibility setups.
+                  <strong data-i18n="notice2Title">Hardware & Screen-Reader Grants:</strong>
+                  <span data-i18n="notice2Desc">HR has approved hardware grants for accessibility setups and ergonomic chairs.</span>
                   <span class="notice-time">1 day ago</span>
+                </div>
+              </li>
+              <li class="notice-item">
+                <span class="notice-dot blue"></span>
+                <div>
+                  <strong data-i18n="notice3Title">Q4 Hackathon Announced:</strong>
+                  <span data-i18n="notice3Desc">Build inclusive AI apps for employees with disabilities. Cash prizes available.</span>
+                  <span class="notice-time">2 days ago</span>
                 </div>
               </li>
             </ul>
@@ -196,29 +250,39 @@
       <section id="tab-copilot" class="tab-panel">
         <div class="panel-header">
           <div>
-            <h2>🤖 INCLUAI Copilot (Voice & Text)</h2>
-            <p class="subtitle">Ask about HR policies, benefits, leaves, or write workplace emails.</p>
+            <h2 data-i18n="copilotHeader">🤖 INCLUAI Copilot (Voice & Text)</h2>
+            <p class="subtitle" data-i18n="copilotSub">Ask about HR policies, benefits, leaves, or write workplace emails.</p>
           </div>
+          <!-- Voice & Backend Equalizer Indicator -->
           <div class="voice-status" id="voiceIndicator">
-            <span class="status-dot"></span> Ready for Voice & Text
+            <div class="equalizer-bars" id="equalizerBars">
+              <span></span><span></span><span></span><span></span>
+            </div>
+            <span id="voiceStatusText">Ready for Voice & Text</span>
           </div>
         </div>
 
-        <div class="chat-wrapper">
+        <div class="chat-wrapper glow-card">
           <div class="chat-box" id="copilotChat">
             <div class="msg bot">
               <div class="msg-avatar">🤖</div>
               <div class="msg-content">
-                <p>Hello Gourav! Main INCLUAI Copilot hoon. Aap mujhse type karke ya microphone (🎙️) par bolkar question pooch sakte hain. Main English aur Hindi/Hinglish dono samajhta hoon!</p>
-                <button class="speak-btn" onclick="speakText(this)">🔊 Listen</button>
+                <p data-i18n="copilotWelcome">Hello Gourav! Main INCLUAI Copilot hoon. Aap mujhse type karke ya microphone (🎙️) par bolkar question pooch sakte hain. Main English, Hinglish aur Hindi sabhi me help kar sakta hoon!</p>
+                <button class="speak-btn hover-bounce" onclick="speakText(this)">
+                  <span>🔊</span> <span data-i18n="btnListen">Listen</span>
+                </button>
               </div>
             </div>
           </div>
 
           <div class="chat-controls">
-            <button class="mic-btn" id="micBtn" onclick="toggleVoiceInput()" title="Click to speak (Voice Input)">🎙️</button>
+            <button class="mic-btn hover-pulse" id="micBtn" onclick="toggleVoiceInput()" title="Click to speak (Voice Input)">
+              <span class="mic-icon">🎙️</span>
+            </button>
             <input type="text" id="copilotInput" placeholder="Type or click 🎙️ to speak (e.g. 'WFH policy kya hai?')" onkeypress="if(event.key==='Enter') sendCopilotMsg()">
-            <button class="primary-btn" onclick="sendCopilotMsg()">Send 🚀</button>
+            <button class="primary-btn glow-btn" onclick="sendCopilotMsg()">
+              <span data-i18n="btnSend">Send 🚀</span>
+            </button>
           </div>
         </div>
       </section>
@@ -227,39 +291,41 @@
       <section id="tab-tone" class="tab-panel">
         <div class="panel-header">
           <div>
-            <h2>✍️ Smart Tone Rewriter & Inclusion Translator</h2>
-            <p class="subtitle">Convert raw thoughts or informal Hindi into professional, empathetic corporate emails.</p>
+            <h2 data-i18n="toneHeader">✍️ Smart Tone Rewriter & Inclusion Translator</h2>
+            <p class="subtitle" data-i18n="toneSub">Convert raw thoughts or informal Hindi into professional, empathetic corporate emails.</p>
           </div>
         </div>
 
         <div class="rewriter-grid">
           <!-- Input card -->
-          <div class="card">
-            <h3>1. Enter Raw Thought / Informal Message</h3>
-            <p class="small-text">Type freely without worrying about corporate grammar or vocabulary.</p>
+          <div class="card hover-glow">
+            <h3 data-i18n="rawInputTitle">1. Enter Raw Thought / Informal Message</h3>
+            <p class="small-text" data-i18n="rawInputSub">Type freely without worrying about corporate grammar or vocabulary.</p>
             <textarea id="rawInput" rows="5" placeholder="e.g. 'I can't attend meeting tomorrow because of personal work' OR 'Mujhe kal chhutti chahiye emergency hai...'"></textarea>
 
             <div class="tone-options">
-              <label>Select Desired Tone:</label>
+              <label data-i18n="toneSelectLabel">Select Desired Tone:</label>
               <div class="tone-buttons">
-                <button class="tone-btn active" data-tone="formal" onclick="selectTone(this)">👔 Professional</button>
-                <button class="tone-btn" data-tone="empathetic" onclick="selectTone(this)">🤝 Empathetic & Warm</button>
-                <button class="tone-btn" data-tone="assertive" onclick="selectTone(this)">⚡ Direct & Clear</button>
-                <button class="tone-btn" data-tone="hinglish" onclick="selectTone(this)">🌐 Team Hinglish</button>
+                <button class="tone-btn active hover-lift" data-tone="formal" onclick="selectTone(this)">👔 <span data-i18n="toneFormal">Professional</span></button>
+                <button class="tone-btn hover-lift" data-tone="empathetic" onclick="selectTone(this)">🤝 <span data-i18n="toneEmpathetic">Empathetic & Warm</span></button>
+                <button class="tone-btn hover-lift" data-tone="assertive" onclick="selectTone(this)">⚡ <span data-i18n="toneAssertive">Direct & Clear</span></button>
+                <button class="tone-btn hover-lift" data-tone="hinglish" onclick="selectTone(this)">🌐 <span data-i18n="toneHinglish">Team Hinglish</span></button>
               </div>
             </div>
 
-            <button class="primary-btn w-full mt-3" onclick="processToneRewrite()">✨ Polish & Rewrite with AI</button>
+            <button class="primary-btn w-full mt-3 glow-btn" onclick="processToneRewrite()">
+              <span data-i18n="btnPolish">✨ Polish & Rewrite with AI</span>
+            </button>
           </div>
 
           <!-- Output card -->
-          <div class="card">
+          <div class="card hover-glow">
             <div class="card-title">
-              <h3>2. Polished Workplace Communication</h3>
-              <button class="icon-toggle" onclick="copyPolishedDraft()">📋 Copy</button>
+              <h3 data-i18n="polishedTitle">2. Polished Workplace Communication</h3>
+              <button class="icon-toggle hover-bounce" onclick="copyPolishedDraft()">📋 <span data-i18n="btnCopy">Copy</span></button>
             </div>
             <div class="output-preview" id="polishedOutput">
-              <p class="muted-italic">Your polished and inclusive message will appear here with subject line...</p>
+              <p class="muted-italic" data-i18n="placeholderPolished">Your polished and inclusive message will appear here with subject line...</p>
             </div>
             <div class="tone-explanation" id="toneExplanation">
               💡 <em>Inclusivity Tip: Clear and polite communication reduces workplace misinterpretations.</em>
@@ -272,17 +338,17 @@
       <section id="tab-leave" class="tab-panel">
         <div class="panel-header">
           <div>
-            <h2>🏖️ Automated Leave & Absence Manager</h2>
-            <p class="subtitle">Apply for leaves with AI justification and manage approvals in real-time.</p>
+            <h2 data-i18n="leaveHeader">🏖️ Automated Leave & Absence Manager</h2>
+            <p class="subtitle" data-i18n="leaveSub">Apply for leaves with AI justification and manage approvals in real-time.</p>
           </div>
         </div>
 
         <div class="leave-grid">
           <!-- Leave Form -->
-          <div class="card">
-            <h3>Apply for Leave</h3>
+          <div class="card hover-glow">
+            <h3 data-i18n="applyLeaveTitle">Apply for Leave</h3>
             <div class="form-group">
-              <label>Leave Type:</label>
+              <label data-i18n="leaveTypeLabel">Leave Type:</label>
               <select id="leaveType">
                 <option value="Paid Time Off (PTO)">🏖️ Paid Time Off (PTO)</option>
                 <option value="Sick / Medical Leave">🩺 Sick / Medical Leave</option>
@@ -293,54 +359,56 @@
 
             <div class="form-row">
               <div class="form-group flex-1">
-                <label>From Date:</label>
+                <label data-i18n="fromDateLabel">From Date:</label>
                 <input type="date" id="leaveFrom">
               </div>
               <div class="form-group flex-1">
-                <label>To Date:</label>
+                <label data-i18n="toDateLabel">To Date:</label>
                 <input type="date" id="leaveTo">
               </div>
             </div>
 
             <div class="form-group">
               <div class="label-split">
-                <label>Reason / Handover Note:</label>
-                <button class="text-link" onclick="autoDraftLeaveReason()">✨ Copilot Auto-Draft</button>
+                <label data-i18n="reasonLabel">Reason / Handover Note:</label>
+                <button class="text-link hover-underline" onclick="autoDraftLeaveReason()">✨ Copilot Auto-Draft</button>
               </div>
               <textarea id="leaveReason" rows="3" placeholder="Provide reason or click 'Copilot Auto-Draft'..."></textarea>
             </div>
 
-            <button class="primary-btn w-full" onclick="submitLeaveRequest()">Submit Leave Request 🚀</button>
+            <button class="primary-btn w-full glow-btn" onclick="submitLeaveRequest()">
+              <span data-i18n="btnSubmitLeave">Submit Leave Request 🚀</span>
+            </button>
           </div>
 
           <!-- Leave Balance & History -->
-          <div class="card">
-            <h3>Your Leave Balances</h3>
+          <div class="card hover-glow">
+            <h3 data-i18n="balancesTitle">Your Leave Balances</h3>
             <div class="balances-row">
-              <div class="balance-pill">
+              <div class="balance-pill hover-lift">
                 <span>PTO</span>
                 <strong id="balancePTO">14</strong>
               </div>
-              <div class="balance-pill">
+              <div class="balance-pill hover-lift">
                 <span>Sick</span>
                 <strong id="balanceSick">7</strong>
               </div>
-              <div class="balance-pill">
+              <div class="balance-pill hover-lift">
                 <span>Casual</span>
                 <strong id="balanceCasual">3</strong>
               </div>
             </div>
 
-            <h3 class="mt-4">Leave Application Records</h3>
+            <h3 class="mt-4" data-i18n="historyTitle">Leave Application Records</h3>
             <div class="table-container">
               <table class="leave-table" id="leaveTable">
                 <thead>
                   <tr>
-                    <th>Type</th>
-                    <th>Dates</th>
-                    <th>Reason</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th data-i18n="thType">Type</th>
+                    <th data-i18n="thDates">Dates</th>
+                    <th data-i18n="thReason">Reason</th>
+                    <th data-i18n="thStatus">Status</th>
+                    <th data-i18n="thAction">Action</th>
                   </tr>
                 </thead>
                 <tbody id="leaveTableBody">
@@ -356,8 +424,8 @@
       <section id="tab-employees" class="tab-panel">
         <div class="panel-header">
           <div>
-            <h2>👥 Employee Directory & Support Contacts</h2>
-            <p class="subtitle">Find colleagues, accessibility buddies, and department leads.</p>
+            <h2 data-i18n="empHeader">👥 Employee Directory & Support Contacts</h2>
+            <p class="subtitle" data-i18n="empSub">Find colleagues, accessibility buddies, and department leads.</p>
           </div>
           <div class="search-box">
             <input type="text" id="empSearch" placeholder="Search by name, role, or skill..." onkeyup="filterDirectory()">
@@ -373,31 +441,31 @@
       <section id="tab-inclusion" class="tab-panel">
         <div class="panel-header">
           <div>
-            <h2>🤝 Workplace Inclusion, Accessibility & POSH Portal</h2>
-            <p class="subtitle">TechNova's verified policies for harassment-free, accessible collaboration.</p>
+            <h2 data-i18n="poshHeader">🤝 Workplace Inclusion, Accessibility & POSH Portal</h2>
+            <p class="subtitle" data-i18n="poshSub">TechNova's verified policies for harassment-free, accessible collaboration.</p>
           </div>
         </div>
 
         <div class="inclusion-cards">
-          <div class="policy-card">
+          <div class="policy-card hover-glow">
             <span class="policy-tag">Accessibility</span>
             <h3>Neurodiversity & Ergonomics Support</h3>
             <p>Employees with ADHD, autism, or physical accommodations can request sensory-friendly desks, noise-canceling headphones, and flexible timing.</p>
-            <button class="outline-btn mt-2" onclick="quickCopilotQuery('How do I request neurodivergent workplace adjustments?')">Ask Copilot</button>
+            <button class="outline-btn mt-2 hover-lift" onclick="quickCopilotQuery('How do I request neurodivergent workplace adjustments?')">Ask Copilot</button>
           </div>
 
-          <div class="policy-card">
+          <div class="policy-card hover-glow">
             <span class="policy-tag posh">Legal & Safety</span>
             <h3>POSH (Prevention of Sexual Harassment)</h3>
             <p>Strict zero-tolerance policy against harassment. 100% confidential reporting directly to Internal Complaints Committee (ICC) lead Priya Sharma.</p>
-            <button class="outline-btn mt-2" onclick="quickCopilotQuery('What is the confidential reporting procedure for POSH?')">View Guidelines</button>
+            <button class="outline-btn mt-2 hover-lift" onclick="quickCopilotQuery('What is the confidential reporting procedure for POSH?')">View Guidelines</button>
           </div>
 
-          <div class="policy-card">
+          <div class="policy-card hover-glow">
             <span class="policy-tag wellness">Well-Being</span>
             <h3>Inclusive Language Guide</h3>
             <p>Guidelines on using gender-neutral pronouns, respectful cultural terms, and eliminating ableist jargon in code reviews and emails.</p>
-            <button class="outline-btn mt-2" onclick="quickCopilotQuery('Give me examples of inclusive language in tech code reviews')">Read Examples</button>
+            <button class="outline-btn mt-2 hover-lift" onclick="quickCopilotQuery('Give me examples of inclusive language in tech code reviews')">Read Examples</button>
           </div>
         </div>
       </section>
