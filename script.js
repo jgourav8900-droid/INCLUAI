@@ -863,6 +863,14 @@ async function processToneRewrite() {
     subject = `Quick collaborative note: ${raw.slice(0, 30)}...`;
     body = `Hello Everyone,\n\nI hope your week is going smoothly.\n\nI wanted to share a thoughtful personal update: ${raw}.\n\nEnsuring the team is supported is my priority, so please reach out if you need any handover notes before I step away.\n\nWarmly,\nGourav`;
     tip = "Empathetic communication promotes psychological safety and trust in teams.";
+  } else if (selectedTone === "boundary") {
+    subject = `Project Capacity & Timeline Realignment`;
+    body = `Hi Team / Lead,\n\nThank you for reaching out regarding ${raw}. To ensure I deliver our core sprint commitments with high engineering quality, I won't be able to take on this additional scope without extending deadlines.\n\nCould we discuss reprioritizing tickets, or schedule this for our next sprint?\n\nBest regards,\nGourav`;
+    tip = "Boundary Shield: Protects your mental bandwidth politely without damaging team relationships.";
+  } else if (selectedTone === "jargon") {
+    subject = `Plain Language Translation of Request`;
+    body = `🔍 Plain English Meaning:\n"Let's focus on the actual deliverable without corporate buzzwords: ${raw}."\n\n🇮🇳 Hinglish Meaning:\n"Iska simple matlab hai ki bina formality ke seedhe main task par baat karte hain aur timeline check karte hain."\n\n💡 Next Action:\nAsk for a clear deadline and specific acceptance criteria.`;
+    tip = "Jargon Buster: Converts confusing corporate buzzwords into crystal clear plain language.";
   } else if (selectedTone === "assertive") {
     subject = `Action Item & Availability: ${raw.slice(0, 30)}...`;
     body = `Hi Team,\n\nDirect status update regarding my availability: ${raw}.\n\nAll current blockers have been logged on the board. I will review pending PRs upon return.\n\nRegards,\nGourav`;
@@ -1056,7 +1064,324 @@ function filterDirectory() {
 }
 
 // ========================================================
-// 12. BACKEND HEALTH CHECK & INITIALIZE
+// 12. AI SMART MESSAGE REPLIER
+// ========================================================
+function setReplySample(text) {
+  const input = document.getElementById('incomingMsgInput');
+  if (input) {
+    input.value = text;
+    generateSmartReplies();
+  }
+}
+
+async function generateSmartReplies() {
+  const input = document.getElementById('incomingMsgInput');
+  const text = input ? input.value.trim() : '';
+  const container = document.getElementById('smartReplyContainer');
+  const badge = document.getElementById('replyAnalysisBadge');
+
+  if (!text) {
+    showToast("Please paste an incoming message first!", "info");
+    return;
+  }
+
+  if (container) {
+    container.innerHTML = `<p class="muted-italic">Copilot is analyzing workplace intent & crafting responses...</p>`;
+  }
+
+  // 1. Try real backend
+  try {
+    const res = await fetch(`${API_BASE}/copilot/smart-reply`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ incomingMessage: text })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      renderSmartReplyOptions(data.options, data.analysis);
+      showToast("✨ Generated 3 AI Smart Replies!", "success");
+      incrementTaskMetric();
+      return;
+    }
+  } catch (err) {
+    // Offline fallback
+  }
+
+  // 2. Intelligent fallback generator
+  setTimeout(() => {
+    const mockOptions = [
+      {
+        tag: "🤝 Positive & Structured",
+        text: `Hi! Received your request regarding: "${text.slice(0, 45)}...". I am aligning tasks now and will share progress by 4:00 PM.`
+      },
+      {
+        tag: "⚖️ Realistic Timeline & Quality",
+        text: `Hello! I reviewed the requirements. To maintain test stability and code quality, I can finish the primary block today and verify the edge cases tomorrow morning. Does that work?`
+      },
+      {
+        tag: "🛡️ Priority Clarification / Boundary",
+        text: `Hi! I am actively committed to our primary sprint milestone. If we need to accelerate this, should I pause the active task so we can align on trade-offs?`
+      }
+    ];
+    renderSmartReplyOptions(mockOptions, "Analyzed intent & balanced with boundary protection.");
+    showToast("✨ Generated 3 AI Smart Replies!", "success");
+    incrementTaskMetric();
+  }, 400);
+}
+
+function renderSmartReplyOptions(options, analysis) {
+  const container = document.getElementById('smartReplyContainer');
+  const badge = document.getElementById('replyAnalysisBadge');
+  if (badge) badge.textContent = analysis ? analysis.slice(0, 32) : "Ready";
+
+  if (!container) return;
+  container.innerHTML = '';
+
+  options.forEach((opt, idx) => {
+    const card = document.createElement('div');
+    card.className = 'reply-option-card';
+    card.innerHTML = `
+      <div class="reply-card-header">
+        <span class="reply-tag">${opt.tag}</span>
+        <button class="action-btn-sm hover-bounce" onclick="copyReplyText(${idx})">📋 Copy & Use</button>
+      </div>
+      <p class="reply-text" id="replyText-${idx}">${opt.text}</p>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function copyReplyText(idx) {
+  const p = document.getElementById(`replyText-${idx}`);
+  if (!p) return;
+  navigator.clipboard.writeText(p.innerText).then(() => {
+    showToast("📋 Reply copied to clipboard! Ready to paste into Slack/Teams.", "copy");
+  });
+}
+
+// ========================================================
+// 13. ZEN FOCUS MODE & POMODORO (Neurodiversity Support)
+// ========================================================
+let zenTimerInterval = null;
+let zenSecondsLeft = 25 * 60;
+let isZenTimerRunning = false;
+let isAmbientPlaying = false;
+let audioContext = null;
+
+function toggleZenMode() {
+  const overlay = document.getElementById('zenOverlay');
+  if (!overlay) return;
+  overlay.classList.toggle('active');
+  const isActive = overlay.classList.contains('active');
+  showToast(isActive ? "🧘 Entered ADHD Zen Focus Sanctuary" : "Exited Zen Mode", "info");
+}
+
+function toggleZenTimer() {
+  const btn = document.getElementById('zenTimerBtn');
+  if (isZenTimerRunning) {
+    clearInterval(zenTimerInterval);
+    isZenTimerRunning = false;
+    if (btn) btn.textContent = "▶ Resume";
+    showToast("Focus timer paused", "info");
+  } else {
+    isZenTimerRunning = true;
+    if (btn) btn.textContent = "⏸ Pause";
+    zenTimerInterval = setInterval(() => {
+      zenSecondsLeft--;
+      updateZenDisplay();
+      if (zenSecondsLeft <= 0) {
+        clearInterval(zenTimerInterval);
+        isZenTimerRunning = false;
+        showToast("🎉 Great focus session completed! Take a 5-minute breather.", "success");
+        if (btn) btn.textContent = "▶ Start Focus";
+      }
+    }, 1000);
+    showToast("Deep focus session started (25m) ⏱️", "info");
+  }
+}
+
+function resetZenTimer() {
+  clearInterval(zenTimerInterval);
+  isZenTimerRunning = false;
+  zenSecondsLeft = 25 * 60;
+  updateZenDisplay();
+  const btn = document.getElementById('zenTimerBtn');
+  if (btn) btn.textContent = "▶ Start Focus";
+}
+
+function updateZenDisplay() {
+  const display = document.getElementById('zenTimerDisplay');
+  if (!display) return;
+  const mins = Math.floor(zenSecondsLeft / 60);
+  const secs = zenSecondsLeft % 60;
+  display.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+}
+
+// Ambient Calming Pink/White Noise Generator via Web Audio API
+function toggleAmbientNoise() {
+  const btn = document.getElementById('ambientSoundBtn');
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+
+  if (isAmbientPlaying) {
+    if (audioContext.state === 'running') audioContext.suspend();
+    isAmbientPlaying = false;
+    if (btn) btn.textContent = "🌧️ Rain Ambience (Off)";
+    showToast("Ambient sound paused", "info");
+  } else {
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    } else {
+      // Create soothing pink noise buffer
+      const bufferSize = audioContext.sampleRate * 2;
+      const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+      const data = buffer.getChannelData(0);
+      let b0 = 0, b1 = 0, b2 = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        data[i] = (b0 + b1 + b2 + white * 0.05) * 0.03; // Gentle rain hiss
+      }
+      const noise = audioContext.createBufferSource();
+      noise.buffer = buffer;
+      noise.loop = true;
+      noise.connect(audioContext.destination);
+      noise.start();
+    }
+    isAmbientPlaying = true;
+    if (btn) btn.textContent = "🌧️ Rain Ambience (Playing)";
+    showToast("Calming rain ambience playing 🌧️", "info");
+  }
+}
+
+// ========================================================
+// 15. LANDING SHOWCASE & TRANSITION TO APP
+// ========================================================
+function transitionToApp(user) {
+  const landing = document.getElementById('landingView');
+  const app = document.getElementById('appView');
+
+  if (landing && app) {
+    landing.classList.remove('active');
+    app.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  if (user) {
+    applyUserSession(user);
+  }
+}
+
+function returnToLandingShowcase() {
+  const landing = document.getElementById('landingView');
+  const app = document.getElementById('appView');
+
+  if (landing && app) {
+    app.classList.remove('active');
+    landing.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast("Returned to Showcase & Login Portal 🚀", "info");
+  }
+}
+
+async function handleLandingLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('landingEmail').value.trim();
+  const password = document.getElementById('landingPassword').value.trim();
+  const role = document.getElementById('landingRole').value;
+  const companyCode = document.getElementById('landingCompanyCode').value.trim();
+
+  // Try real backend login
+  try {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, role, companyCode })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      transitionToApp(data.user);
+      showToast(`🎉 ${data.message}`, "success");
+      return;
+    }
+  } catch (err) {
+    // Offline fallback
+  }
+
+  const fallbackUser = {
+    name: email.split('@')[0],
+    email: email,
+    role: role,
+    designation: role === 'hr' ? 'Head of People & Inclusion' : role === 'admin' ? 'Workspace Administrator' : 'Software Engineer (AIML)',
+    companyCode: companyCode || "CORP-7749"
+  };
+  transitionToApp(fallbackUser);
+  showToast(`🎉 Signed in as ${fallbackUser.name} (${fallbackUser.role})`, "success");
+}
+
+function openAppWithAccount(email, role) {
+  const user = {
+    name: role === 'hr' ? 'Priya Sharma' : role === 'admin' ? 'Admin Gourav' : 'Gourav',
+    email: email,
+    role: role,
+    designation: role === 'hr' ? 'Head of People & Inclusion' : role === 'admin' ? 'Workspace Administrator' : 'Software Engineer (AIML)',
+    companyCode: "CORP-7749"
+  };
+  transitionToApp(user);
+  showToast(`⚡ Instant Fast Pass: Logged in as ${user.name}!`, "success");
+}
+
+// Interactive SVG Chart Curve Switcher (1M, 3M, 1Y)
+function switchChartTimeline(btn, timeline) {
+  document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const strokePath = document.getElementById('chartStrokePath');
+  const areaPath = document.getElementById('chartAreaPath');
+
+  if (timeline === '3M') {
+    if (strokePath) strokePath.setAttribute('d', 'M 0,110 C 80,100 150,70 230,60 C 310,50 380,25 440,15 C 470,12 490,10 500,8');
+    if (areaPath) areaPath.setAttribute('d', 'M 0,110 C 80,100 150,70 230,60 C 310,50 380,25 440,15 C 470,12 490,10 500,8 L 500,160 L 0,160 Z');
+    showToast("📈 Chart updated for 3-Month Trajectory", "info");
+  } else if (timeline === '1Y') {
+    if (strokePath) strokePath.setAttribute('d', 'M 0,140 C 90,135 170,100 250,70 C 330,45 400,20 460,10 C 480,8 495,6 500,5');
+    if (areaPath) areaPath.setAttribute('d', 'M 0,140 C 90,135 170,100 250,70 C 330,45 400,20 460,10 C 480,8 495,6 500,5 L 500,160 L 0,160 Z');
+    showToast("📈 Chart updated for Annual Growth (+142%)", "info");
+  } else {
+    if (strokePath) strokePath.setAttribute('d', 'M 0,130 C 70,120 130,90 200,80 C 270,70 330,40 400,30 C 450,22 480,15 500,10');
+    if (areaPath) areaPath.setAttribute('d', 'M 0,130 C 70,120 130,90 200,80 C 270,70 330,40 400,30 C 450,22 480,15 500,10 L 500,160 L 0,160 Z');
+    showToast("📈 Chart updated for Monthly Velocity", "info");
+  }
+}
+
+// Rotating Live Ticker Headlines
+const tickerItems = [
+  "⚡ Priya Sharma approved Leave ID #2 • Just now",
+  "🤖 Copilot verified 12 pages of TechNova AI handbook",
+  "📈 Team velocity surged by +38.4% this sprint",
+  "🤝 Workplace inclusion rating achieved 98.6% (WCAG AAA)",
+  "🎙️ Voice speech-to-text active across English & Hindi"
+];
+let tickerIndex = 0;
+setInterval(() => {
+  const el = document.getElementById('landingTickerText');
+  if (el) {
+    tickerIndex = (tickerIndex + 1) % tickerItems.length;
+    el.style.opacity = '0';
+    setTimeout(() => {
+      el.textContent = tickerItems[tickerIndex];
+      el.style.opacity = '1';
+    }, 200);
+  }
+}, 3800);
+
+// ========================================================
+// 16. BACKEND HEALTH CHECK & INITIALIZE
 // ========================================================
 async function checkBackendStatus() {
   try {

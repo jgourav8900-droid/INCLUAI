@@ -241,6 +241,14 @@ app.post('/api/tone/rewrite', (req, res) => {
     subject = `Quick collaborative note: ${rawText.slice(0, 30)}...`;
     body = `Hello Everyone,\n\nI hope your week is progressing smoothly.\n\nI wanted to share a thoughtful personal update: ${rawText}.\n\nEnsuring that my team is well-supported is my priority, so please let me know if you need any handover notes before I step away.\n\nWarmly,\nGourav`;
     tip = "Empathetic communication promotes psychological safety and trust in teams.";
+  } else if (tone === "boundary") {
+    subject = `Project Capacity & Timeline Realignment`;
+    body = `Hi Team / Lead,\n\nThank you for reaching out with this task. To be fully transparent about my current bandwidth regarding ${rawText}: I am currently committed to delivering our core sprint objectives.\n\nTo ensure we maintain code quality and prevent burnout, I won't be able to take on this additional scope right now without adjusting existing deadlines. Could we discuss reprioritizing tasks, or schedule this for our next cycle?\n\nBest regards,\nGourav`;
+    tip = "Boundary Shield: Protects your mental bandwidth politely without damaging team relationships.";
+  } else if (tone === "jargon") {
+    subject = `Plain Language Breakdown of Corporate Request`;
+    body = `🔍 Plain English Translation:\n"Let's focus on the actual deliverable without corporate buzzwords: ${rawText}."\n\n🇮🇳 Hinglish Meaning:\n"Iska simple matlab hai ki bina faltu formality ke seedhe main task par baat karte hain aur timeline check karte hain."\n\n💡 Actionable Next Step:\nAsk for a clear deadline and specific acceptance criteria instead of vague jargon.`;
+    tip = "Jargon Buster: Converts confusing corporate buzzwords into crystal clear plain language.";
   } else if (tone === "assertive") {
     subject = `Action Item & Availability: ${rawText.slice(0, 30)}...`;
     body = `Hi Team,\n\nDirect status update regarding my schedule: ${rawText}.\n\nTask statuses are updated on the board. I will address pending reviews upon my return.\n\nRegards,\nGourav`;
@@ -257,6 +265,75 @@ app.post('/api/tone/rewrite', (req, res) => {
     subject,
     polishedText: body,
     tip
+  });
+});
+
+// AI Smart Message Replier Endpoint
+app.post('/api/copilot/smart-reply', (req, res) => {
+  const { incomingMessage, tonePreference } = req.body;
+  if (!incomingMessage) {
+    return res.status(400).json({ success: false, message: "Incoming message is required." });
+  }
+
+  const msg = incomingMessage.toLowerCase();
+  let analysis = "Analyzed sender intent and workplace etiquette.";
+  let options = [];
+
+  if (msg.includes('urgent') || msg.includes('asap') || msg.includes('today') || msg.includes('deadline')) {
+    analysis = "High urgency task request. Balanced with quality assurance & boundary.";
+    options = [
+      {
+        tag: "🤝 Positive & Structured",
+        text: `Hi! Received your note. I am currently prioritizing this deliverable and will have the first draft ready for your review by 4:00 PM today.`
+      },
+      {
+        tag: "⚖️ Realistic Expectation",
+        text: `Hello! I'm reviewing the scope now. To ensure test coverage and code quality, I can complete the priority milestone today and finalize the edge cases tomorrow morning. Does that timeline align with team goals?`
+      },
+      {
+        tag: "🛡️ Priority Clarification",
+        text: `Hi! I am actively working on our primary sprint deliverable. If we need to accelerate this today, I will need to pause the current ticket. Which of the two should take precedence?`
+      }
+    ];
+  } else if (msg.includes('meeting') || msg.includes('call') || msg.includes('sync')) {
+    analysis = "Meeting invitation / sync request.";
+    options = [
+      {
+        tag: "✅ Accept with Agenda",
+        text: `Hi! Thanks for reaching out. I'm available for a 15-minute sync. Please feel free to send a calendar invite along with a brief agenda.`
+      },
+      {
+        tag: "⚡ Async Alternative",
+        text: `Hello! My calendar is tightly booked today. Could you share the key bullet points or questions here? I can review asynchronously and respond within 30 minutes.`
+      },
+      {
+        tag: "📅 Reschedule Politely",
+        text: `Hi! I have back-to-back development focus blocks today. Would tomorrow between 2:00 PM - 3:00 PM work for you instead?`
+      }
+    ];
+  } else {
+    // General colleague message
+    analysis = "General workplace inquiry or feedback.";
+    options = [
+      {
+        tag: "👔 Professional Acknowledgment",
+        text: `Thank you for sharing this update. I have reviewed the details and will incorporate this into our current milestone.`
+      },
+      {
+        tag: "🤝 Warm & Collaborative",
+        text: `Appreciate you keeping me in the loop! Let me know if you need any input or documentation from my end.`
+      },
+      {
+        tag: "🌐 Team Hinglish",
+        text: `Thanks for the update! Maine check kar liya hai aur changes coordinate kar diye hain. Kuch urgent ho toh bata dena.`
+      }
+    ];
+  }
+
+  res.json({
+    success: true,
+    analysis,
+    options
   });
 });
 
@@ -283,7 +360,22 @@ app.post('/api/copilot/chat', async (req, res) => {
   }
 
   // 2. Built-in RAG Search over Company Handbook
-  if (query.includes('leave') || query.includes('pto') || query.includes('wfh') || query.includes('chhutti')) {
+  if (query.includes('reply') || query.includes('how to respond') || query.includes('manager asked') || query.includes('message aaya')) {
+    answer = `<strong>AI Smart Message Replier (Powered by INCLUAI Knowledge):</strong><br><br>
+    Maine sender ke message ko analyze kiya hai. Workplace diplomacy ke hisaab se yeh 2 suggested replies hain:<br><br>
+    • <strong>Option A (Commit with Clear Scope):</strong><br>
+    <em>"Hi! Received your request. Prioritizing this right now and will update you once the priority commits are live."</em><br><br>
+    • <strong>Option B (Healthy Boundary & Timeline):</strong><br>
+    <em>"Hello! I am currently committed to our active sprint milestone. To maintain code quality, I can pick this up first thing tomorrow morning."</em><br><br>
+    💡 <em>Tip: Naya 'Smart Message Replier' tab use karein instant 1-click options ke liye!</em>`;
+  } else if (query.includes('jargon') || query.includes('circle back') || query.includes('bandwidth') || query.includes('synergy')) {
+    answer = `<strong>Corporate Jargon Buster:</strong><br><br>
+    • <strong>"Circle back"</strong> = Baad mein dobara discuss karenge.<br>
+    • <strong>"Low hanging fruit"</strong> = Aasan aur jaldi hone wale tasks.<br>
+    • <strong>"Bandwidth"</strong> = Kisi kaam ke liye available time aur energy.<br>
+    • <strong>"Take this offline"</strong> = Meeting ke baad akele mein baat karenge.<br><br>
+    💡 <em>Tip: Tone Rewriter mein 'Jargon Buster' mode use karein kisi bhi line ko decode karne ke liye!</em>`;
+  } else if (query.includes('leave') || query.includes('pto') || query.includes('wfh') || query.includes('chhutti')) {
     answer = language === "HI"
       ? `<strong>TechNova Leave Policy (Backend Verified):</strong><br>• Aapke paas abhi <strong>${leaveBalances.pto} Annual PTO</strong> balance hai.<br>• 2 din WFH per week allowed hai.<br>• Aap hamare <em>Leave Manager</em> se instant leave submit kar sakte hain.`
       : `<strong>Leave Policy (TechNova Verified):</strong><br>• Available PTO balance: <strong>${leaveBalances.pto} days</strong>.<br>• Engineers can take up to 2 WFH days per week with manager coordination.`;
