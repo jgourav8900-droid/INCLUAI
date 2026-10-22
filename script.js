@@ -5,6 +5,7 @@
 // ========================================================
 
 // App State
+const API_BASE = "http://localhost:5000/api";
 let currentRole = "employee"; // "employee", "hr", "admin"
 let currentLanguage = "EN";   // "EN", "HI"
 let selectedTone = "formal";
@@ -200,7 +201,7 @@ function speakText(btn) {
 // ========================================================
 // 5. INCLUAI COPILOT CHAT ENGINE
 // ========================================================
-function sendCopilotMsg() {
+async function sendCopilotMsg() {
   const input = document.getElementById('copilotInput');
   const text = input.value.trim();
   if (!text) return;
@@ -208,11 +209,28 @@ function sendCopilotMsg() {
   addChatBubble('user', text);
   input.value = '';
 
-  // Process query & simulate response
+  // Try calling real Node.js Backend API
+  try {
+    const res = await fetch(`${API_BASE}/copilot/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, language: currentLanguage })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      addChatBubble('bot', data.answer);
+      return;
+    }
+  } catch (err) {
+    // If backend is offline, gracefully use local fallback
+  }
+
+  // Fallback simulation
   setTimeout(() => {
     const reply = generateCopilotAnswer(text);
     addChatBubble('bot', reply);
-  }, 600);
+  }, 500);
 }
 
 function addChatBubble(sender, content) {
@@ -291,7 +309,7 @@ function selectTone(btn) {
   selectedTone = btn.dataset.tone;
 }
 
-function processToneRewrite() {
+async function processToneRewrite() {
   const raw = document.getElementById('rawInput').value.trim();
   const output = document.getElementById('polishedOutput');
   const explanation = document.getElementById('toneExplanation');
@@ -299,6 +317,25 @@ function processToneRewrite() {
   if (!raw) {
     alert("Please enter a message or raw thought to polish!");
     return;
+  }
+
+  // Try calling real Node.js Backend API
+  try {
+    const res = await fetch(`${API_BASE}/tone/rewrite`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rawText: raw, tone: selectedTone })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      output.innerText = `Subject: ${data.subject}\n\n${data.polishedText}`;
+      explanation.innerHTML = `💡 ${data.tip}`;
+      incrementTaskMetric();
+      return;
+    }
+  } catch (err) {
+    // Fallback if backend offline
   }
 
   let subject = "";
@@ -540,10 +577,34 @@ function filterDirectory() {
   renderDirectory(filtered);
 }
 
+function incrementTaskMetric() {
+  const tasksEl = document.getElementById('metricTasks');
+  if (tasksEl) {
+    tasksEl.textContent = parseInt(tasksEl.textContent) + 1;
+  }
+}
+
+async function checkBackendStatus() {
+  try {
+    const res = await fetch(`${API_BASE}/status`);
+    if (res.ok) {
+      const data = await res.json();
+      console.log("Connected to INCLUAI Backend:", data);
+      const indicator = document.getElementById('voiceIndicator');
+      if (indicator) {
+        indicator.innerHTML = `<span class="status-dot" style="background:#10b981;"></span> Backend Online (${data.aiEngine})`;
+      }
+    }
+  } catch (err) {
+    console.log("Backend offline, running in local standalone mode");
+  }
+}
+
 // ========================================================
 // INITIALIZE
 // ========================================================
 window.addEventListener('DOMContentLoaded', () => {
+  checkBackendStatus();
   renderDirectory(directory);
   renderLeaveTable();
   updateBalanceDisplays();
