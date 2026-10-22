@@ -5,6 +5,7 @@
 
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -15,6 +16,9 @@ app.use(cors());
 
 // Enable parsing of JSON bodies in requests
 app.use(express.json());
+
+// Serve static frontend files (index.html, style.css, script.js) so localhost:5000 runs with full microphone & speech permissions!
+app.use(express.static(path.join(__dirname, '..')));
 
 // ========================================================
 // 1. IN-MEMORY DATABASE (Ready for MongoDB Atlas)
@@ -75,6 +79,71 @@ app.get('/api/status', (req, res) => {
     status: "online",
     timestamp: new Date().toISOString(),
     aiEngine: process.env.GEMINI_API_KEY ? "Gemini-API-Active" : "Local-RAG-Engine"
+  });
+});
+
+// Authentication Endpoints (Login / Signup)
+app.post('/api/auth/login', (req, res) => {
+  const { email, password, role, companyCode } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ success: false, message: "Email and password are required." });
+  }
+
+  // Find user or generate mock session
+  let user = employees.find(e => e.email.toLowerCase() === email.toLowerCase());
+  const assignedRole = role || (email.toLowerCase().includes('priya') ? 'hr' : 'employee');
+
+  if (!user) {
+    user = {
+      id: "EMP-" + Math.floor(100 + Math.random() * 900),
+      name: email.split('@')[0],
+      email: email,
+      role: assignedRole === 'hr' ? 'Head of People & Inclusion' : assignedRole === 'admin' ? 'Workspace Administrator' : 'Software Engineer (AIML)',
+      dept: assignedRole === 'hr' ? 'Human Resources' : 'Engineering'
+    };
+  }
+
+  res.json({
+    success: true,
+    message: `Welcome back, ${user.name}! Successfully signed in.`,
+    token: "mock-jwt-token-incluai-" + Date.now(),
+    user: {
+      name: user.name,
+      email: user.email,
+      role: assignedRole,
+      designation: user.role,
+      companyCode: companyCode || "CORP-7749"
+    }
+  });
+});
+
+app.post('/api/auth/signup', (req, res) => {
+  const { name, email, password, role } = req.body;
+  if (!name || !email || !password) {
+    return res.status(400).json({ success: false, message: "Name, email and password are required." });
+  }
+
+  const assignedRole = role || 'employee';
+  const newUser = {
+    id: "EMP-" + (employees.length + 101),
+    name,
+    role: assignedRole === 'hr' ? 'HR Specialist' : assignedRole === 'admin' ? 'Workspace Administrator' : 'Software Engineer (AIML)',
+    dept: assignedRole === 'hr' ? 'Human Resources' : 'Engineering',
+    email
+  };
+  employees.push(newUser);
+
+  res.status(201).json({
+    success: true,
+    message: `Account created! Welcome to INCLUAI, ${name}.`,
+    token: "mock-jwt-token-incluai-" + Date.now(),
+    user: {
+      name: newUser.name,
+      email: newUser.email,
+      role: assignedRole,
+      designation: newUser.role,
+      companyCode: "CORP-7749"
+    }
   });
 });
 

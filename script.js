@@ -382,64 +382,90 @@ function switchRole(role) {
 }
 
 // ========================================================
-// 7. VOICE RECOGNITION & EQUALIZER ANIMATION
+// 7. ROBUST VOICE RECOGNITION (Web Speech API)
 // ========================================================
-function initSpeechRecognition() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) return null;
-
-  const rec = new SpeechRecognition();
-  rec.continuous = false;
-  rec.interimResults = false;
-  rec.lang = currentLanguage === "hi" ? "hi-IN" : "en-US";
-
-  rec.onstart = () => {
-    isListening = true;
-    document.getElementById('micBtn')?.classList.add('listening');
-    document.getElementById('equalizerBars')?.classList.add('animating');
-    document.getElementById('voiceStatusText').textContent = "Listening to your voice... Speak now!";
-    showToast("Listening to voice input... 🎙️", "voice");
-  };
-
-  rec.onresult = (event) => {
-    const transcript = event.results[0][0].transcript;
-    const input = document.getElementById('copilotInput');
-    if (input) input.value = transcript;
-    sendCopilotMsg();
-  };
-
-  rec.onerror = (event) => {
-    console.error("Speech recognition error:", event.error);
-    stopListening();
-  };
-
-  rec.onend = () => {
-    stopListening();
-  };
-
-  return rec;
-}
-
 function toggleVoiceInput() {
-  if (!recognition) {
-    recognition = initSpeechRecognition();
-  }
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-  if (!recognition) {
-    showToast("Voice is best supported in Chrome / Edge.", "info");
+  if (!SpeechRecognition) {
+    showToast("⚠️ Speech recognition not supported in this browser. Please use Chrome or Edge.", "info");
     return;
   }
 
-  if (isListening) {
-    recognition.stop();
+  // Check if running on file:/// URL
+  if (window.location.protocol === 'file:') {
+    showToast("🔒 Browser blocks mic on file:// URLs. Open http://localhost:5000 to speak!", "info");
+  }
+
+  if (isListening && recognition) {
+    try { recognition.stop(); } catch(e){}
     stopListening();
-  } else {
-    try {
-      recognition.lang = currentLanguage === "hi" ? "hi-IN" : "en-US";
-      recognition.start();
-    } catch (e) {
-      console.warn(e);
+    return;
+  }
+
+  // Always create a clean instance to prevent InvalidStateError
+  try {
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    
+    // Choose dialect based on current language
+    if (currentLanguage === "hi") {
+      recognition.lang = "hi-IN";
+    } else if (currentLanguage === "hinglish") {
+      recognition.lang = "en-IN";
+    } else {
+      recognition.lang = "en-US";
     }
+
+    recognition.onstart = () => {
+      isListening = true;
+      document.getElementById('micBtn')?.classList.add('listening');
+      document.getElementById('equalizerBars')?.classList.add('animating');
+      const status = document.getElementById('voiceStatusText');
+      if (status) status.textContent = "Listening... Speak your question now!";
+      showToast("Listening to voice input... 🎙️ Speak now!", "voice");
+    };
+
+    recognition.onresult = (event) => {
+      if (event.results && event.results[0] && event.results[0][0]) {
+        const transcript = event.results[0][0].transcript;
+        const input = document.getElementById('copilotInput');
+        if (input) input.value = transcript;
+        showToast(`Captured: "${transcript}"`, "voice");
+        sendCopilotMsg();
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.warn("Speech error:", event.error);
+      stopListening();
+      if (event.error === 'not-allowed') {
+        if (window.location.protocol === 'file:') {
+          showToast("🔒 Mic blocked on file:// URL. Please open http://localhost:5000 in your browser!", "info");
+        } else {
+          showToast("⚠️ Microphone access denied. Click the lock/camera icon in your address bar to allow mic.", "info");
+        }
+      } else if (event.error === 'no-speech') {
+        showToast("No speech detected. Please speak closer to the microphone.", "info");
+      } else if (event.error === 'audio-capture') {
+        showToast("No microphone found on your computer.", "info");
+      } else if (event.error === 'network') {
+        showToast("Voice transcription requires an active internet connection.", "info");
+      } else {
+        showToast(`Voice status: ${event.error}`, "info");
+      }
+    };
+
+    recognition.onend = () => {
+      stopListening();
+    };
+
+    recognition.start();
+  } catch (err) {
+    console.error("Failed to start voice recognition:", err);
+    stopListening();
+    showToast("Could not start microphone. Please check permissions.", "info");
   }
 }
 
@@ -447,7 +473,162 @@ function stopListening() {
   isListening = false;
   document.getElementById('micBtn')?.classList.remove('listening');
   document.getElementById('equalizerBars')?.classList.remove('animating');
-  document.getElementById('voiceStatusText').textContent = "Ready for Voice & Text";
+  const status = document.getElementById('voiceStatusText');
+  if (status) status.textContent = "Ready for Voice & Text";
+}
+
+// ========================================================
+// AUTH MODAL & LOGIN/SIGNUP SYSTEM
+// ========================================================
+function openAuthModal() {
+  const modal = document.getElementById('authModal');
+  if (modal) modal.classList.add('active');
+}
+
+function closeAuthModal() {
+  const modal = document.getElementById('authModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function handleModalOverlayClick(e) {
+  if (e.target.id === 'authModal') {
+    closeAuthModal();
+  }
+}
+
+function switchAuthTab(tab) {
+  const signInBtn = document.getElementById('tabSignInBtn');
+  const signUpBtn = document.getElementById('tabSignUpBtn');
+  const signInForm = document.getElementById('signInForm');
+  const signUpForm = document.getElementById('signUpForm');
+
+  if (tab === 'signin') {
+    signInBtn.classList.add('active');
+    signUpBtn.classList.remove('active');
+    signInForm.classList.add('active');
+    signUpForm.classList.remove('active');
+  } else {
+    signUpBtn.classList.add('active');
+    signInBtn.classList.remove('active');
+    signUpForm.classList.add('active');
+    signInForm.classList.remove('active');
+  }
+}
+
+function togglePasswordVisibility(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁️';
+  }
+}
+
+function fillDemoAccount(email, role) {
+  document.getElementById('loginEmail').value = email;
+  document.getElementById('loginRole').value = role;
+  document.getElementById('loginPassword').value = "demoPassword123";
+  showToast(`Loaded ${role.toUpperCase()} demo credentials!`, "info");
+}
+
+function forgotPasswordMock() {
+  showToast("Password reset link sent to registered email address.", "info");
+}
+
+async function handleSignIn(e) {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  const role = document.getElementById('loginRole').value;
+  const companyCode = document.getElementById('loginCompanyCode').value.trim();
+
+  // Try real backend
+  try {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, role, companyCode })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      applyUserSession(data.user);
+      closeAuthModal();
+      showToast(`🎉 ${data.message}`, "success");
+      return;
+    }
+  } catch (err) {
+    // Offline fallback
+  }
+
+  const fallbackUser = {
+    name: email.split('@')[0],
+    email: email,
+    role: role,
+    designation: role === 'hr' ? 'Head of People & Inclusion' : role === 'admin' ? 'Workspace Administrator' : 'Software Engineer (AIML)',
+    companyCode: companyCode || "CORP-7749"
+  };
+  applyUserSession(fallbackUser);
+  closeAuthModal();
+  showToast(`🎉 Logged in as ${fallbackUser.name} (${fallbackUser.role})`, "success");
+}
+
+async function handleSignUp(e) {
+  e.preventDefault();
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const password = document.getElementById('signupPassword').value.trim();
+  const company = document.getElementById('signupCompany').value.trim();
+  const role = document.getElementById('signupRole').value;
+
+  // Try real backend
+  try {
+    const res = await fetch(`${API_BASE}/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, companyName: company, role })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      applyUserSession(data.user);
+      closeAuthModal();
+      showToast(`✨ Account created! Welcome, ${name}.`, "success");
+      return;
+    }
+  } catch (err) {
+    // Offline fallback
+  }
+
+  const fallbackUser = {
+    name: name,
+    email: email,
+    role: role,
+    designation: role === 'hr' ? 'HR Specialist' : role === 'admin' ? 'Workspace Administrator' : 'Software Engineer (AIML)',
+    companyCode: "CORP-7749"
+  };
+  applyUserSession(fallbackUser);
+  closeAuthModal();
+  showToast(`✨ Welcome aboard, ${name}!`, "success");
+}
+
+function applyUserSession(user) {
+  document.getElementById('userName').textContent = user.name;
+  document.getElementById('userDesignation').textContent = user.designation;
+  document.getElementById('userAvatar').textContent = user.name.charAt(0).toUpperCase();
+  document.getElementById('heroTitle').textContent = `Welcome back, ${user.name}! 👋`;
+  document.getElementById('authBtnLabel').textContent = `Signed in (${user.name})`;
+  
+  const roleSel = document.getElementById('roleSelector');
+  if (roleSel) roleSel.value = user.role;
+  switchRole(user.role);
+
+  try {
+    localStorage.setItem('incluai_user', JSON.stringify(user));
+  } catch (e) {}
 }
 
 // Text-to-Speech (Read Aloud with Equalizer Effect)

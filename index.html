@@ -55,6 +55,10 @@
 
     <!-- User Profile & Role Switcher -->
     <div class="user-header">
+      <button class="login-nav-btn glow-btn hover-bounce" onclick="openAuthModal()" title="Login or Register New Account">
+        <span>🔑</span> <span id="authBtnLabel">Sign In / Register</span>
+      </button>
+
       <div class="role-switch">
         <label for="roleSelector" data-i18n="roleLabel">Role:</label>
         <select id="roleSelector" onchange="switchRole(this.value)">
@@ -471,6 +475,125 @@
       </section>
 
     </main>
+  </div>
+
+  <!-- Modern Auth Modal Overlay (Sign In / Register) -->
+  <div id="authModal" class="modal-overlay" onclick="handleModalOverlayClick(event)">
+    <div class="auth-card glow-card" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeAuthModal()" title="Close">✕</button>
+
+      <div class="auth-header">
+        <div class="logo-icon small-logo">⚡</div>
+        <h2>INCLU<span>AI</span> Workspace Access</h2>
+        <p class="auth-sub">Secure multi-tenant login for company employees and administrators.</p>
+      </div>
+
+      <!-- Auth Tabs: Sign In vs Sign Up -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabSignInBtn" onclick="switchAuthTab('signin')">Sign In</button>
+        <button class="auth-tab" id="tabSignUpBtn" onclick="switchAuthTab('signup')">Create Account (Sign Up)</button>
+      </div>
+
+      <!-- 1. SIGN IN FORM -->
+      <form id="signInForm" class="auth-form active" onsubmit="handleSignIn(event)">
+        <div class="form-group">
+          <label>Company Workspace Code:</label>
+          <div class="input-with-icon">
+            <span class="field-icon">🏢</span>
+            <input type="text" id="loginCompanyCode" value="CORP-7749" placeholder="e.g. CORP-7749" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Work Email Address:</label>
+          <div class="input-with-icon">
+            <span class="field-icon">📧</span>
+            <input type="email" id="loginEmail" value="gourav@technova.ai" placeholder="name@company.com" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="label-split">
+            <label>Password:</label>
+            <span class="forgot-link" onclick="forgotPasswordMock()">Forgot password?</span>
+          </div>
+          <div class="input-with-icon">
+            <span class="field-icon">🔒</span>
+            <input type="password" id="loginPassword" value="password123" placeholder="Enter your password" required>
+            <button type="button" class="eye-toggle" onclick="togglePasswordVisibility('loginPassword', this)">👁️</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Login Role:</label>
+          <select id="loginRole">
+            <option value="employee">👨‍💻 Employee (Software Engineer)</option>
+            <option value="hr">💼 HR & Inclusion Manager</option>
+            <option value="admin">👑 Company Workspace Admin</option>
+          </select>
+        </div>
+
+        <button type="submit" class="primary-btn w-full glow-btn mt-2">
+          <span>Sign In to Workspace 🚀</span>
+        </button>
+
+        <!-- 1-Click Quick Demo Accounts -->
+        <div class="demo-logins">
+          <span class="demo-label">Quick Demo Accounts:</span>
+          <div class="demo-chips">
+            <button type="button" class="demo-chip hover-bounce" onclick="fillDemoAccount('gourav@technova.ai', 'employee')">👨‍💻 Gourav</button>
+            <button type="button" class="demo-chip hover-bounce" onclick="fillDemoAccount('priya.s@technova.ai', 'hr')">💼 Priya (HR)</button>
+            <button type="button" class="demo-chip hover-bounce" onclick="fillDemoAccount('admin@technova.ai', 'admin')">👑 Admin</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- 2. SIGN UP FORM -->
+      <form id="signUpForm" class="auth-form" onsubmit="handleSignUp(event)">
+        <div class="form-group">
+          <label>Full Name:</label>
+          <div class="input-with-icon">
+            <span class="field-icon">👤</span>
+            <input type="text" id="signupName" placeholder="Gourav Kumar" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Work Email:</label>
+          <div class="input-with-icon">
+            <span class="field-icon">📧</span>
+            <input type="email" id="signupEmail" placeholder="gourav@company.com" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Company / Organization Name:</label>
+          <div class="input-with-icon">
+            <span class="field-icon">🏢</span>
+            <input type="text" id="signupCompany" placeholder="TechNova Inc." required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label>Password:</label>
+            <input type="password" id="signupPassword" placeholder="Minimum 6 characters" required>
+          </div>
+          <div class="form-group flex-1">
+            <label>Role:</label>
+            <select id="signupRole">
+              <option value="employee">Employee</option>
+              <option value="hr">HR Manager</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="primary-btn w-full glow-btn mt-2">
+          <span>Create Workspace & Register ✨</span>
+        </button>
+      </form>
+    </div>
   </div>
 
   <script src="script.js"></script>
