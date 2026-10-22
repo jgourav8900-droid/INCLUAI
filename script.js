@@ -616,11 +616,12 @@ async function handleSignUp(e) {
 }
 
 function applyUserSession(user) {
-  document.getElementById('userName').textContent = user.name;
-  document.getElementById('userDesignation').textContent = user.designation;
-  document.getElementById('userAvatar').textContent = user.name.charAt(0).toUpperCase();
-  document.getElementById('heroTitle').textContent = `Welcome back, ${user.name}! 👋`;
-  document.getElementById('authBtnLabel').textContent = `Signed in (${user.name})`;
+  if (document.getElementById('userName')) document.getElementById('userName').textContent = user.name;
+  if (document.getElementById('userDesignation')) document.getElementById('userDesignation').textContent = user.designation;
+  if (document.getElementById('userAvatar')) document.getElementById('userAvatar').textContent = user.name.charAt(0).toUpperCase();
+  if (document.getElementById('heroTitle')) document.getElementById('heroTitle').textContent = `Welcome back, ${user.name}! 👋`;
+  const authBtn = document.getElementById('authBtnLabel');
+  if (authBtn) authBtn.textContent = `Signed in (${user.name})`;
   
   const roleSel = document.getElementById('roleSelector');
   if (roleSel) roleSel.value = user.role;
@@ -815,7 +816,7 @@ function generateCopilotAnswer(query) {
 // 9. SMART TONE REWRITER
 // ========================================================
 function selectTone(btn) {
-  document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tone-btn, .tone-select-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   selectedTone = btn.dataset.tone;
 }
@@ -1259,15 +1260,17 @@ function toggleAmbientNoise() {
 }
 
 // ========================================================
-// 15. LANDING SHOWCASE & TRANSITION TO APP
+// 15. LANDING SHOWCASE & TRANSITION TO DASHBOARD
 // ========================================================
-function transitionToApp(user) {
-  const landing = document.getElementById('landingView');
-  const app = document.getElementById('appView');
+function openDashboard(user) {
+  const authScreen = document.getElementById('authScreen');
+  const workspaceScreen = document.getElementById('workspaceScreen');
 
-  if (landing && app) {
-    landing.classList.remove('active');
-    app.classList.add('active');
+  if (authScreen && workspaceScreen) {
+    authScreen.classList.remove('active');
+    authScreen.style.display = 'none';
+    workspaceScreen.classList.add('active');
+    workspaceScreen.style.display = 'flex';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -1276,24 +1279,54 @@ function transitionToApp(user) {
   }
 }
 
-function returnToLandingShowcase() {
-  const landing = document.getElementById('landingView');
-  const app = document.getElementById('appView');
+// Backwards-compatible alias for any callers
+function transitionToApp(user) {
+  openDashboard(user);
+}
 
-  if (landing && app) {
-    app.classList.remove('active');
-    landing.classList.add('active');
+function exitToLandingShowcase() {
+  const authScreen = document.getElementById('authScreen');
+  const workspaceScreen = document.getElementById('workspaceScreen');
+
+  if (authScreen && workspaceScreen) {
+    workspaceScreen.classList.remove('active');
+    workspaceScreen.style.display = 'none';
+    authScreen.classList.add('active');
+    authScreen.style.display = 'flex';
     window.scrollTo({ top: 0, behavior: 'smooth' });
     showToast("Returned to Showcase & Login Portal 🚀", "info");
   }
 }
 
-async function handleLandingLogin(e) {
-  e.preventDefault();
-  const email = document.getElementById('landingEmail').value.trim();
-  const password = document.getElementById('landingPassword').value.trim();
-  const role = document.getElementById('landingRole').value;
-  const companyCode = document.getElementById('landingCompanyCode').value.trim();
+function returnToLandingShowcase() {
+  exitToLandingShowcase();
+}
+
+function switchLoginTab(mode) {
+  const loginTab = document.getElementById('authTabLogin');
+  const signupTab = document.getElementById('authTabSignup');
+  const loginForm = document.getElementById('mainLoginForm');
+  const signupForm = document.getElementById('mainSignupForm');
+
+  if (mode === 'signup') {
+    if (loginTab) loginTab.classList.remove('active');
+    if (signupTab) signupTab.classList.add('active');
+    if (loginForm) loginForm.style.display = 'none';
+    if (signupForm) signupForm.style.display = 'block';
+  } else {
+    if (signupTab) signupTab.classList.remove('active');
+    if (loginTab) loginTab.classList.add('active');
+    if (signupForm) signupForm.style.display = 'none';
+    if (loginForm) loginForm.style.display = 'block';
+  }
+}
+
+async function handleMainLogin(e) {
+  if (e) e.preventDefault();
+  const email = (document.getElementById('authEmail')?.value || '').trim();
+  const password = (document.getElementById('authPassword')?.value || '').trim();
+  const role = document.getElementById('authRole')?.value || 'employee';
+  const companyCode = (document.getElementById('authCompanyCode')?.value || 'CORP-7749').trim();
 
   // Try real backend login
   try {
@@ -1305,8 +1338,43 @@ async function handleLandingLogin(e) {
 
     if (res.ok) {
       const data = await res.json();
-      transitionToApp(data.user);
-      showToast(`🎉 ${data.message}`, "success");
+      openDashboard(data.user);
+      showToast(`🎉 ${data.message || 'Login successful!'}`, "success");
+      return;
+    }
+  } catch (err) {
+    // Backend offline fallback
+  }
+
+  const fallbackUser = {
+    name: email.split('@')[0] || "Gourav",
+    email: email || "gourav@technova.ai",
+    role: role,
+    designation: role === 'hr' ? 'Head of People & Inclusion' : role === 'admin' ? 'Company Administrator' : 'Software Engineer (AIML)',
+    companyCode: companyCode
+  };
+  openDashboard(fallbackUser);
+  showToast(`🎉 Signed in as ${fallbackUser.name} (${fallbackUser.role})`, "success");
+}
+
+async function handleMainSignup(e) {
+  if (e) e.preventDefault();
+  const name = (document.getElementById('signupFullName')?.value || '').trim();
+  const email = (document.getElementById('signupWorkEmail')?.value || '').trim();
+  const password = (document.getElementById('signupPass')?.value || '').trim();
+  const role = document.getElementById('signupRoleSelect')?.value || 'employee';
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, role })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      openDashboard(data.user);
+      showToast(`✨ Account created! Welcome, ${data.user.name}`, "success");
       return;
     }
   } catch (err) {
@@ -1314,69 +1382,137 @@ async function handleLandingLogin(e) {
   }
 
   const fallbackUser = {
-    name: email.split('@')[0],
-    email: email,
+    name: name || "Gourav Kumar",
+    email: email || "gourav@technova.ai",
     role: role,
-    designation: role === 'hr' ? 'Head of People & Inclusion' : role === 'admin' ? 'Workspace Administrator' : 'Software Engineer (AIML)',
-    companyCode: companyCode || "CORP-7749"
-  };
-  transitionToApp(fallbackUser);
-  showToast(`🎉 Signed in as ${fallbackUser.name} (${fallbackUser.role})`, "success");
-}
-
-function openAppWithAccount(email, role) {
-  const user = {
-    name: role === 'hr' ? 'Priya Sharma' : role === 'admin' ? 'Admin Gourav' : 'Gourav',
-    email: email,
-    role: role,
-    designation: role === 'hr' ? 'Head of People & Inclusion' : role === 'admin' ? 'Workspace Administrator' : 'Software Engineer (AIML)',
+    designation: role === 'hr' ? 'Head of People & Inclusion' : role === 'admin' ? 'Company Administrator' : 'Software Engineer (AIML)',
     companyCode: "CORP-7749"
   };
-  transitionToApp(user);
-  showToast(`⚡ Instant Fast Pass: Logged in as ${user.name}!`, "success");
+  openDashboard(fallbackUser);
+  showToast(`✨ Welcome aboard, ${fallbackUser.name}!`, "success");
+}
+
+function openFastPass(email, role) {
+  const profileMap = {
+    'gourav@technova.ai': {
+      name: 'Gourav',
+      email: 'gourav@technova.ai',
+      role: 'employee',
+      designation: 'Software Engineer (AIML)',
+      companyCode: 'CORP-7749'
+    },
+    'priya.s@technova.ai': {
+      name: 'Priya Sharma',
+      email: 'priya.s@technova.ai',
+      role: 'hr',
+      designation: 'Head of People & Inclusion (HR Lead)',
+      companyCode: 'CORP-7749'
+    },
+    'admin@technova.ai': {
+      name: 'Administrator',
+      email: 'admin@technova.ai',
+      role: 'admin',
+      designation: 'Workspace Administrator & Founder',
+      companyCode: 'CORP-7749'
+    }
+  };
+
+  const user = profileMap[email] || {
+    name: email.split('@')[0],
+    email: email,
+    role: role || 'employee',
+    designation: role === 'hr' ? 'Head of People & Inclusion' : role === 'admin' ? 'Company Administrator' : 'Software Engineer (AIML)',
+    companyCode: 'CORP-7749'
+  };
+
+  openDashboard(user);
+  showToast(`⚡ Instant Fast-Pass: Signed in as ${user.name}!`, "success");
+}
+
+// Backwards-compatible alias
+function openAppWithAccount(email, role) {
+  openFastPass(email, role);
 }
 
 // Interactive SVG Chart Curve Switcher (1M, 3M, 1Y)
-function switchChartTimeline(btn, timeline) {
-  document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+function switchDribbbleChart(btn, timeframe) {
+  document.querySelectorAll('.timeframe-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
 
-  const strokePath = document.getElementById('chartStrokePath');
-  const areaPath = document.getElementById('chartAreaPath');
+  const strokePath = document.getElementById('splineLine');
+  const areaPath = document.getElementById('splineArea');
 
-  if (timeline === '3M') {
-    if (strokePath) strokePath.setAttribute('d', 'M 0,110 C 80,100 150,70 230,60 C 310,50 380,25 440,15 C 470,12 490,10 500,8');
-    if (areaPath) areaPath.setAttribute('d', 'M 0,110 C 80,100 150,70 230,60 C 310,50 380,25 440,15 C 470,12 490,10 500,8 L 500,160 L 0,160 Z');
-    showToast("📈 Chart updated for 3-Month Trajectory", "info");
-  } else if (timeline === '1Y') {
-    if (strokePath) strokePath.setAttribute('d', 'M 0,140 C 90,135 170,100 250,70 C 330,45 400,20 460,10 C 480,8 495,6 500,5');
-    if (areaPath) areaPath.setAttribute('d', 'M 0,140 C 90,135 170,100 250,70 C 330,45 400,20 460,10 C 480,8 495,6 500,5 L 500,160 L 0,160 Z');
-    showToast("📈 Chart updated for Annual Growth (+142%)", "info");
+  if (timeframe === '3M') {
+    if (strokePath) strokePath.setAttribute('d', 'M 0,125 C 80,110 140,80 220,65 C 300,50 370,20 440,14 C 480,10 500,8 520,6');
+    if (areaPath) areaPath.setAttribute('d', 'M 0,125 C 80,110 140,80 220,65 C 300,50 370,20 440,14 C 480,10 500,8 520,6 L 520,170 L 0,170 Z');
+    showToast("📈 Chart updated for 3-Month Trajectory (+64.2%)", "info");
+  } else if (timeframe === '1Y') {
+    if (strokePath) strokePath.setAttribute('d', 'M 0,150 C 90,135 160,95 240,65 C 320,40 390,18 450,10 C 480,7 500,5 520,4');
+    if (areaPath) areaPath.setAttribute('d', 'M 0,150 C 90,135 160,95 240,65 C 320,40 390,18 450,10 C 480,7 500,5 520,4 L 520,170 L 0,170 Z');
+    showToast("📈 Chart updated for Annual Growth (+142% Velocity)", "info");
   } else {
-    if (strokePath) strokePath.setAttribute('d', 'M 0,130 C 70,120 130,90 200,80 C 270,70 330,40 400,30 C 450,22 480,15 500,10');
-    if (areaPath) areaPath.setAttribute('d', 'M 0,130 C 70,120 130,90 200,80 C 270,70 330,40 400,30 C 450,22 480,15 500,10 L 500,160 L 0,160 Z');
-    showToast("📈 Chart updated for Monthly Velocity", "info");
+    if (strokePath) strokePath.setAttribute('d', 'M 0,140 C 80,120 140,85 220,70 C 300,55 380,30 440,22 C 480,16 500,10 520,8');
+    if (areaPath) areaPath.setAttribute('d', 'M 0,140 C 80,120 140,85 220,70 C 300,55 380,30 440,22 C 480,16 500,10 520,8 L 520,170 L 0,170 Z');
+    showToast("📈 Chart updated for Monthly Velocity (+42.8%)", "info");
   }
 }
 
-// Rotating Live Ticker Headlines
-const tickerItems = [
+// Interactive SVG Velocity Switcher for Dashboard (Week 42, Week 41, Week 40)
+function switchDashboardChart(btn, week) {
+  const container = btn.closest('.dashboard-chart-card');
+  if (container) {
+    container.querySelectorAll('.timeframe-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  const stroke = document.getElementById('dashSplineLine');
+  const area = document.getElementById('dashSplineArea');
+  const score = document.getElementById('dashVelocityScore');
+  const delta = document.getElementById('dashVelocityDelta');
+  const cap = document.getElementById('dashCapacityKpi');
+
+  if (week === 'w41') {
+    if (stroke) stroke.setAttribute('d', 'M 0,120 C 80,105 150,85 230,70 C 310,55 380,40 440,30 C 470,25 490,20 520,18');
+    if (area) area.setAttribute('d', 'M 0,120 C 80,105 150,85 230,70 C 310,55 380,40 440,30 C 470,25 490,20 520,18 L 520,140 L 0,140 Z');
+    if (score) score.textContent = "Sprint Velocity: 86.8 pts";
+    if (delta) delta.textContent = "+22.4% steady velocity";
+    if (cap) cap.textContent = "91.8%";
+    showToast("📊 Chart switched to Week 41 telemetry", "info");
+  } else if (week === 'w40') {
+    if (stroke) stroke.setAttribute('d', 'M 0,130 C 80,120 160,100 240,85 C 320,70 390,55 450,42 C 480,36 500,30 520,26');
+    if (area) area.setAttribute('d', 'M 0,130 C 80,120 160,100 240,85 C 320,70 390,55 450,42 C 480,36 500,30 520,26 L 520,140 L 0,140 Z');
+    if (score) score.textContent = "Sprint Velocity: 79.2 pts";
+    if (delta) delta.textContent = "+14.6% baseline";
+    if (cap) cap.textContent = "88.4%";
+    showToast("📊 Chart switched to Week 40 telemetry", "info");
+  } else {
+    if (stroke) stroke.setAttribute('d', 'M 0,110 C 80,95 140,70 220,55 C 300,45 370,30 440,22 C 470,18 490,14 520,10');
+    if (area) area.setAttribute('d', 'M 0,110 C 80,95 140,70 220,55 C 300,45 370,30 440,22 C 470,18 490,14 520,10 L 520,140 L 0,140 Z');
+    if (score) score.textContent = "Sprint Velocity: 92.4 pts";
+    if (delta) delta.textContent = "+34.8% vs last cycle";
+    if (cap) cap.textContent = "94.2%";
+    showToast("📊 Current active Sprint: Week 42 (Peak Performance)", "info");
+  }
+}
+
+// Rotating Live Activity Stream Ticker
+const dribbbleTickerList = [
   "⚡ Priya Sharma approved Leave ID #2 • Just now",
-  "🤖 Copilot verified 12 pages of TechNova AI handbook",
-  "📈 Team velocity surged by +38.4% this sprint",
+  "🤖 AI Copilot summarized 18 sections of TechNova Handbook",
+  "📈 Sprint velocity surged +42.8% with Tone Rewriter",
   "🤝 Workplace inclusion rating achieved 98.6% (WCAG AAA)",
-  "🎙️ Voice speech-to-text active across English & Hindi"
+  "🎙️ Voice Speech-to-Text active across English & Hindi"
 ];
-let tickerIndex = 0;
+let tickerIdx = 0;
 setInterval(() => {
-  const el = document.getElementById('landingTickerText');
-  if (el) {
-    tickerIndex = (tickerIndex + 1) % tickerItems.length;
-    el.style.opacity = '0';
+  const tickerEl = document.getElementById('streamTickerMessage');
+  if (tickerEl) {
+    tickerIdx = (tickerIdx + 1) % dribbbleTickerList.length;
+    tickerEl.style.opacity = '0';
     setTimeout(() => {
-      el.textContent = tickerItems[tickerIndex];
-      el.style.opacity = '1';
-    }, 200);
+      tickerEl.textContent = dribbbleTickerList[tickerIdx];
+      tickerEl.style.opacity = '1';
+    }, 250);
   }
 }, 3800);
 
