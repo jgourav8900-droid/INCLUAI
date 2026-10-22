@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INCLUAI | AI Workspace</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <h2>INCLU<span>AI</span></h2>
+    <p class="muted">YOUR AI WORKSPACE</p>
+
+    <button class="nav active" data-page="Dashboard">▦ Dashboard</button>
+    <button class="nav" data-page="AI Copilot">✦ AI Copilot</button>
+    <button class="nav" data-page="Employees">♙ Employees</button>
+    <button class="nav" data-page="Messages">✉ Messages</button>
+    <button class="nav" data-page="Settings">⚙ Settings</button>
+
+    <div class="profile">
+      <div class="avatar">G</div>
+      <div>
+        <strong>Gourav</strong>
+        <p class="muted">Workspace Owner</p>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header>
+      <div>
+        <p class="muted">MONDAY / YOUR WORKSPACE</p>
+        <h1 id="page-title">Welcome to INCLUAI 👋</h1>
+        <p>Your workspace, powered by intelligence.</p>
+      </div>
+      <span class="status">● Prototype</span>
+    </header>
+
+    <section class="cards">
+      <article class="card">
+        <p>Team Members</p>
+        <h2>12</h2>
+        <small>Sample data</small>
+      </article>
+      <article class="card">
+        <p>Tasks Completed</p>
+        <h2>28</h2>
+        <small>Sample data</small>
+      </article>
+      <article class="card">
+        <p>AI Assistance</p>
+        <h2>Active</h2>
+        <small>Demo mode</small>
+      </article>
+    </section>
+
+    <section class="copilot">
+      <div class="copilot-head">
+        <div class="ai-icon">✦</div>
+        <div>
+          <h2>INCLUAI Copilot</h2>
+          <p>What can I help you with today?</p>
+        </div>
+      </div>
+
+      <div id="chat" class="chat">
+        <p class="bot">
+          Hi Gourav! I'm your INCLUAI Copilot.
+          This is a demo. Real AI is coming next.
+        </p>
+      </div>
+
+      <form id="chat-form">
+        <input id="message" placeholder="Ask INCLUAI anything..." required>
+        <button type="submit">Send ↑</button>
+      </form>
+      <small class="muted">Demo only — no real AI connection yet.</small>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
