@@ -1,83 +1,409 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>INCLUAI | AI Workspace</title>
+  <title>INCLUAI — Inclusive AI Workplace Platform</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-  <aside class="sidebar">
-    <h2>INCLU<span>AI</span></h2>
-    <p class="muted">YOUR AI WORKSPACE</p>
-
-    <button class="nav active" data-page="Dashboard">▦ Dashboard</button>
-    <button class="nav" data-page="AI Copilot">✦ AI Copilot</button>
-    <button class="nav" data-page="Employees">♙ Employees</button>
-    <button class="nav" data-page="Messages">✉ Messages</button>
-    <button class="nav" data-page="Settings">⚙ Settings</button>
-
-    <div class="profile">
-      <div class="avatar">G</div>
-      <div>
-        <strong>Gourav</strong>
-        <p class="muted">Workspace Owner</p>
-      </div>
+<body class="font-medium">
+  <!-- Topbar Header -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-title">INCLU<span>AI</span></div>
+      <span class="company-tag">TechNova Global (ID: CORP-7749)</span>
     </div>
-  </aside>
 
-  <main class="main">
-    <header>
-      <div>
-        <p class="muted">MONDAY / YOUR WORKSPACE</p>
-        <h1 id="page-title">Welcome to INCLUAI 👋</h1>
-        <p>Your workspace, powered by intelligence.</p>
+    <!-- Accessibility Quick Bar -->
+    <div class="accessibility-bar">
+      <div class="font-sizer" title="Adjust Font Size for Readability">
+        <button onclick="setFontSize('small')">A-</button>
+        <button onclick="setFontSize('medium')" class="active-size">A</button>
+        <button onclick="setFontSize('large')">A+</button>
       </div>
-      <span class="status">● Prototype</span>
-    </header>
+      <button class="icon-toggle" id="contrastBtn" onclick="toggleContrast()" title="Toggle High Contrast">🌓 Contrast</button>
+      <button class="icon-toggle" id="langBtn" onclick="toggleLanguage()" title="Toggle Language">🌐 <span id="langLabel">EN</span></button>
+    </div>
 
-    <section class="cards">
-      <article class="card">
-        <p>Team Members</p>
-        <h2>12</h2>
-        <small>Sample data</small>
-      </article>
-      <article class="card">
-        <p>Tasks Completed</p>
-        <h2>28</h2>
-        <small>Sample data</small>
-      </article>
-      <article class="card">
-        <p>AI Assistance</p>
-        <h2>Active</h2>
-        <small>Demo mode</small>
-      </article>
-    </section>
-
-    <section class="copilot">
-      <div class="copilot-head">
-        <div class="ai-icon">✦</div>
-        <div>
-          <h2>INCLUAI Copilot</h2>
-          <p>What can I help you with today?</p>
+    <!-- User Profile & Role Switcher -->
+    <div class="user-header">
+      <div class="role-switch">
+        <label for="roleSelector">Role:</label>
+        <select id="roleSelector" onchange="switchRole(this.value)">
+          <option value="employee">👨‍💻 Employee (Gourav)</option>
+          <option value="hr">💼 HR Manager (Priya)</option>
+          <option value="admin">👑 Company Admin</option>
+        </select>
+      </div>
+      <div class="profile-chip">
+        <div class="avatar" id="userAvatar">G</div>
+        <div class="user-info">
+          <strong id="userName">Gourav</strong>
+          <span id="userDesignation">Software Engineer (AIML)</span>
         </div>
       </div>
+    </div>
+  </header>
 
-      <div id="chat" class="chat">
-        <p class="bot">
-          Hi Gourav! I'm your INCLUAI Copilot.
-          This is a demo. Real AI is coming next.
-        </p>
+  <!-- App Layout -->
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <nav class="nav-links">
+        <button class="nav-btn active" onclick="showTab('dashboard')">
+          <span class="nav-icon">📊</span>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-btn" onclick="showTab('copilot')">
+          <span class="nav-icon">🤖</span>
+          <span>AI Copilot</span>
+          <span class="badge-mini">Voice</span>
+        </button>
+        <button class="nav-btn" onclick="showTab('tone')">
+          <span class="nav-icon">✍️</span>
+          <span>Tone Rewriter</span>
+          <span class="badge-new">Inclusive</span>
+        </button>
+        <button class="nav-btn" onclick="showTab('leave')">
+          <span class="nav-icon">🏖️</span>
+          <span>Leave Manager</span>
+          <span class="badge-counter" id="pendingLeaveBadge">1</span>
+        </button>
+        <button class="nav-btn" onclick="showTab('employees')">
+          <span class="nav-icon">👥</span>
+          <span>Employees</span>
+        </button>
+        <button class="nav-btn" onclick="showTab('inclusion')">
+          <span class="nav-icon">🤝</span>
+          <span>Inclusion & POSH</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-card">
+        <h4>Inclusion Assistant</h4>
+        <p>Voice speech & empathetic communication enabled.</p>
       </div>
+    </aside>
 
-      <form id="chat-form">
-        <input id="message" placeholder="Ask INCLUAI anything..." required>
-        <button type="submit">Send ↑</button>
-      </form>
-      <small class="muted">Demo only — no real AI connection yet.</small>
-    </section>
-  </main>
+    <!-- Main Content Panels -->
+    <main class="main-body">
+
+      <!-- ================= 1. DASHBOARD TAB ================= -->
+      <section id="tab-dashboard" class="tab-panel active">
+        <div class="hero-card">
+          <div class="hero-text">
+            <h1 id="heroTitle">Welcome back, Gourav! 👋</h1>
+            <p id="heroSubtitle">INCLUAI combines workplace intelligence with empathy and accessibility.</p>
+          </div>
+          <div class="hero-actions">
+            <button class="primary-btn" onclick="showTab('copilot')">🎙️ Talk to Copilot</button>
+            <button class="outline-btn" onclick="showTab('leave')">🏖️ Apply Leave</button>
+          </div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-header">
+              <span>Leave Balance (PTO)</span>
+              <span class="metric-icon">🏖️</span>
+            </div>
+            <div class="metric-val" id="metricLeaves">14 Days</div>
+            <small class="metric-note">Annual paid time off remaining</small>
+          </div>
+
+          <div class="metric-card highlight">
+            <div class="metric-header">
+              <span>Smart Actions Used</span>
+              <span class="metric-icon">⚡</span>
+            </div>
+            <div class="metric-val" id="metricTasks">29</div>
+            <small class="metric-note">Emails polished & queries answered</small>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span>Colleagues Online</span>
+              <span class="metric-icon">👥</span>
+            </div>
+            <div class="metric-val">148</div>
+            <small class="metric-note">Across Engineering & Product</small>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span>Accessibility Score</span>
+              <span class="metric-icon">🤝</span>
+            </div>
+            <div class="metric-val">98%</div>
+            <small class="metric-note">WCAG AAA Compliance</small>
+          </div>
+        </div>
+
+        <!-- Dashboard Split Section -->
+        <div class="split-row">
+          <!-- Quick Inclusive Shortcuts -->
+          <div class="card flex-1">
+            <div class="card-title">
+              <h3>⚡ One-Click Inclusive Actions</h3>
+            </div>
+            <div class="quick-chips">
+              <button class="chip" onclick="quickRewriter('Mujhe kal tabiyat theek nahi lag rahi, chhutti chahiye')">
+                ✍️ "Translate raw Hindi to Sick Leave Email"
+              </button>
+              <button class="chip" onclick="quickCopilotQuery('What are our mental health and counseling allowances?')">
+                🧠 Mental Wellness Benefits
+              </button>
+              <button class="chip" onclick="quickCopilotQuery('Explain hybrid working hours for neurodivergent employees')">
+                🤝 Accessible Work Guidelines
+              </button>
+              <button class="chip" onclick="showTab('leave')">
+                🏖️ Check Leave Application Status
+              </button>
+            </div>
+          </div>
+
+          <!-- Company Notice Board -->
+          <div class="card flex-1">
+            <div class="card-title">
+              <h3>📢 Workplace Updates</h3>
+            </div>
+            <ul class="notice-list">
+              <li>
+                <span class="notice-dot purple"></span>
+                <div>
+                  <strong>Voice Copilot Released:</strong> You can now talk to Copilot in Hindi & English using the microphone button.
+                  <span class="notice-time">Just now</span>
+                </div>
+              </li>
+              <li>
+                <span class="notice-dot green"></span>
+                <div>
+                  <strong>Ergonomic & Screen-Reader Stipend:</strong> HR has approved hardware grants for accessibility setups.
+                  <span class="notice-time">1 day ago</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2. AI COPILOT TAB ================= -->
+      <section id="tab-copilot" class="tab-panel">
+        <div class="panel-header">
+          <div>
+            <h2>🤖 INCLUAI Copilot (Voice & Text)</h2>
+            <p class="subtitle">Ask about HR policies, benefits, leaves, or write workplace emails.</p>
+          </div>
+          <div class="voice-status" id="voiceIndicator">
+            <span class="status-dot"></span> Ready for Voice & Text
+          </div>
+        </div>
+
+        <div class="chat-wrapper">
+          <div class="chat-box" id="copilotChat">
+            <div class="msg bot">
+              <div class="msg-avatar">🤖</div>
+              <div class="msg-content">
+                <p>Hello Gourav! Main INCLUAI Copilot hoon. Aap mujhse type karke ya microphone (🎙️) par bolkar question pooch sakte hain. Main English aur Hindi/Hinglish dono samajhta hoon!</p>
+                <button class="speak-btn" onclick="speakText(this)">🔊 Listen</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="mic-btn" id="micBtn" onclick="toggleVoiceInput()" title="Click to speak (Voice Input)">🎙️</button>
+            <input type="text" id="copilotInput" placeholder="Type or click 🎙️ to speak (e.g. 'WFH policy kya hai?')" onkeypress="if(event.key==='Enter') sendCopilotMsg()">
+            <button class="primary-btn" onclick="sendCopilotMsg()">Send 🚀</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 3. TONE REWRITER TAB ================= -->
+      <section id="tab-tone" class="tab-panel">
+        <div class="panel-header">
+          <div>
+            <h2>✍️ Smart Tone Rewriter & Inclusion Translator</h2>
+            <p class="subtitle">Convert raw thoughts or informal Hindi into professional, empathetic corporate emails.</p>
+          </div>
+        </div>
+
+        <div class="rewriter-grid">
+          <!-- Input card -->
+          <div class="card">
+            <h3>1. Enter Raw Thought / Informal Message</h3>
+            <p class="small-text">Type freely without worrying about corporate grammar or vocabulary.</p>
+            <textarea id="rawInput" rows="5" placeholder="e.g. 'I can't attend meeting tomorrow because of personal work' OR 'Mujhe kal chhutti chahiye emergency hai...'"></textarea>
+
+            <div class="tone-options">
+              <label>Select Desired Tone:</label>
+              <div class="tone-buttons">
+                <button class="tone-btn active" data-tone="formal" onclick="selectTone(this)">👔 Professional</button>
+                <button class="tone-btn" data-tone="empathetic" onclick="selectTone(this)">🤝 Empathetic & Warm</button>
+                <button class="tone-btn" data-tone="assertive" onclick="selectTone(this)">⚡ Direct & Clear</button>
+                <button class="tone-btn" data-tone="hinglish" onclick="selectTone(this)">🌐 Team Hinglish</button>
+              </div>
+            </div>
+
+            <button class="primary-btn w-full mt-3" onclick="processToneRewrite()">✨ Polish & Rewrite with AI</button>
+          </div>
+
+          <!-- Output card -->
+          <div class="card">
+            <div class="card-title">
+              <h3>2. Polished Workplace Communication</h3>
+              <button class="icon-toggle" onclick="copyPolishedDraft()">📋 Copy</button>
+            </div>
+            <div class="output-preview" id="polishedOutput">
+              <p class="muted-italic">Your polished and inclusive message will appear here with subject line...</p>
+            </div>
+            <div class="tone-explanation" id="toneExplanation">
+              💡 <em>Inclusivity Tip: Clear and polite communication reduces workplace misinterpretations.</em>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 4. LEAVE MANAGER TAB ================= -->
+      <section id="tab-leave" class="tab-panel">
+        <div class="panel-header">
+          <div>
+            <h2>🏖️ Automated Leave & Absence Manager</h2>
+            <p class="subtitle">Apply for leaves with AI justification and manage approvals in real-time.</p>
+          </div>
+        </div>
+
+        <div class="leave-grid">
+          <!-- Leave Form -->
+          <div class="card">
+            <h3>Apply for Leave</h3>
+            <div class="form-group">
+              <label>Leave Type:</label>
+              <select id="leaveType">
+                <option value="Paid Time Off (PTO)">🏖️ Paid Time Off (PTO)</option>
+                <option value="Sick / Medical Leave">🩺 Sick / Medical Leave</option>
+                <option value="Casual / Emergency">⚡ Casual / Emergency</option>
+                <option value="Mental Health Day">🧠 Mental Health & Wellness Day</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label>From Date:</label>
+                <input type="date" id="leaveFrom">
+              </div>
+              <div class="form-group flex-1">
+                <label>To Date:</label>
+                <input type="date" id="leaveTo">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="label-split">
+                <label>Reason / Handover Note:</label>
+                <button class="text-link" onclick="autoDraftLeaveReason()">✨ Copilot Auto-Draft</button>
+              </div>
+              <textarea id="leaveReason" rows="3" placeholder="Provide reason or click 'Copilot Auto-Draft'..."></textarea>
+            </div>
+
+            <button class="primary-btn w-full" onclick="submitLeaveRequest()">Submit Leave Request 🚀</button>
+          </div>
+
+          <!-- Leave Balance & History -->
+          <div class="card">
+            <h3>Your Leave Balances</h3>
+            <div class="balances-row">
+              <div class="balance-pill">
+                <span>PTO</span>
+                <strong id="balancePTO">14</strong>
+              </div>
+              <div class="balance-pill">
+                <span>Sick</span>
+                <strong id="balanceSick">7</strong>
+              </div>
+              <div class="balance-pill">
+                <span>Casual</span>
+                <strong id="balanceCasual">3</strong>
+              </div>
+            </div>
+
+            <h3 class="mt-4">Leave Application Records</h3>
+            <div class="table-container">
+              <table class="leave-table" id="leaveTable">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Dates</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="leaveTableBody">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 5. EMPLOYEES TAB ================= -->
+      <section id="tab-employees" class="tab-panel">
+        <div class="panel-header">
+          <div>
+            <h2>👥 Employee Directory & Support Contacts</h2>
+            <p class="subtitle">Find colleagues, accessibility buddies, and department leads.</p>
+          </div>
+          <div class="search-box">
+            <input type="text" id="empSearch" placeholder="Search by name, role, or skill..." onkeyup="filterDirectory()">
+          </div>
+        </div>
+
+        <div class="emp-grid" id="directoryGrid">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- ================= 6. INCLUSION & POSH TAB ================= -->
+      <section id="tab-inclusion" class="tab-panel">
+        <div class="panel-header">
+          <div>
+            <h2>🤝 Workplace Inclusion, Accessibility & POSH Portal</h2>
+            <p class="subtitle">TechNova's verified policies for harassment-free, accessible collaboration.</p>
+          </div>
+        </div>
+
+        <div class="inclusion-cards">
+          <div class="policy-card">
+            <span class="policy-tag">Accessibility</span>
+            <h3>Neurodiversity & Ergonomics Support</h3>
+            <p>Employees with ADHD, autism, or physical accommodations can request sensory-friendly desks, noise-canceling headphones, and flexible timing.</p>
+            <button class="outline-btn mt-2" onclick="quickCopilotQuery('How do I request neurodivergent workplace adjustments?')">Ask Copilot</button>
+          </div>
+
+          <div class="policy-card">
+            <span class="policy-tag posh">Legal & Safety</span>
+            <h3>POSH (Prevention of Sexual Harassment)</h3>
+            <p>Strict zero-tolerance policy against harassment. 100% confidential reporting directly to Internal Complaints Committee (ICC) lead Priya Sharma.</p>
+            <button class="outline-btn mt-2" onclick="quickCopilotQuery('What is the confidential reporting procedure for POSH?')">View Guidelines</button>
+          </div>
+
+          <div class="policy-card">
+            <span class="policy-tag wellness">Well-Being</span>
+            <h3>Inclusive Language Guide</h3>
+            <p>Guidelines on using gender-neutral pronouns, respectful cultural terms, and eliminating ableist jargon in code reviews and emails.</p>
+            <button class="outline-btn mt-2" onclick="quickCopilotQuery('Give me examples of inclusive language in tech code reviews')">Read Examples</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
 
   <script src="script.js"></script>
 </body>
