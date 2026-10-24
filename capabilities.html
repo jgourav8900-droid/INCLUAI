@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capabilities — Clarity across every layer</title>
+
+  <!-- Fonts: Geist (variable) & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ========================================================
+       1. SCALE & COLOR ENGINE (826 x 552 Artboard)
+       ======================================================== */
+    :root {
+      /* Default fallback; JS calculates the exact uniform contain scale */
+      --u: clamp(1px, min(100vw / 826, 100vh / 552), 1.75px);
+
+      --bg-page: #050505;
+      --amber-1: #FFC24A;
+      --amber-2: #E9931E;
+      --amber-3: #A85A0C;
+
+      --text-white-96: rgba(255, 255, 255, 0.96);
+      --text-white-64: rgba(255, 255, 255, 0.64);
+      --text-white-58: rgba(255, 255, 255, 0.58);
+      --text-white-44: rgba(255, 255, 255, 0.44);
+
+      --glass-fill: rgba(255, 255, 255, 0.021);
+      --glass-border: rgba(255, 255, 255, 0.065);
+      --glass-border-top: rgba(255, 255, 255, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-page);
+      color: var(--text-white-96);
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Page: #050505 with two faint vertical hairline guides at the thirds (white at 3%) */
+    .hairline-guide {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(255, 255, 255, 0.03);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .guide-one { left: 33.333%; }
+    .guide-two { left: 66.666%; }
+
+    /* ========================================================
+       2. MASTER CAPABILITIES SECTION
+       ======================================================== */
+    .capabilities-artboard {
+      width: calc(826 * var(--u));
+      height: calc(552 * var(--u));
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: calc(28 * var(--u)) calc(30 * var(--u)) calc(22 * var(--u));
+    }
+
+    /* Strip: 7.2u mono caps, tracking .275em, white at 44% */
+    .mono-strip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: calc(7.2 * var(--u));
+      letter-spacing: 0.275em;
+      text-transform: uppercase;
+      color: var(--text-white-44);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      line-height: 1;
+    }
+
+    .strip-left {
+      display: flex;
+      align-items: center;
+      gap: calc(8 * var(--u));
+    }
+
+    .strip-num {
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    /* Short rule after "01" */
+    .strip-rule {
+      width: calc(24 * var(--u));
+      height: 1px;
+      background: rgba(255, 255, 255, 0.25);
+      display: inline-block;
+      transform-origin: left center;
+    }
+
+    .strip-center {
+      color: var(--text-white-44);
+    }
+
+    .strip-right {
+      color: var(--text-white-44);
+    }
+
+    /* Headline Area */
+    .header-block {
+      display: flex;
+      flex-direction: column;
+      gap: calc(8 * var(--u));
+      margin-top: calc(8 * var(--u));
+    }
+
+    .headline-mask {
+      overflow: hidden;
+      display: block;
+    }
+
+    /* Headline: "Clarity across every layer". Geist at about weight 473, 47.3u, tracking -.05em */
+    .headline-tight {
+      font-family: 'Geist', sans-serif;
+      font-size: calc(47.3 * var(--u));
+      font-weight: 473;
+      letter-spacing: -0.05em;
+      line-height: 1.04;
+      color: var(--text-white-96);
+    }
+
+    /* "Clarity" is filled with an amber gradient (#FFC24A -> #E9931E -> #A85A0C) */
+    .amber-gradient-word {
+      background: linear-gradient(135deg, var(--amber-1) 0%, var(--amber-2) 50%, var(--amber-3) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+      filter: drop-shadow(0 0 calc(16 * var(--u)) rgba(233, 147, 30, 0.5));
+    }
+
+    /* Lede: 13.4u at about weight 290, white at 64% */
+    .lede {
+      font-family: 'Geist', sans-serif;
+      font-size: calc(13.4 * var(--u));
+      font-weight: 290;
+      color: var(--text-white-64);
+      line-height: 1.45;
+      max-width: calc(620 * var(--u));
+    }
+
+    /* ========================================================
+       3. THREE GLASS CARDS GRID (16u apart, >=273u tall, radius 4u)
+       ======================================================== */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: calc(16 * var(--u));
+      width: 100%;
+      margin-top: calc(12 * var(--u));
+    }
+
+    /* Glass Card: fill white at 2.1%, 1u hairline border, 14px backdrop blur, soft amber radial glow */
+    .glass-card {
+      min-height: calc(273 * var(--u));
+      border-radius: calc(4 * var(--u));
+      background-color: var(--glass-fill);
+      border: calc(1 * var(--u)) solid var(--glass-border);
+      border-top: calc(1 * var(--u)) solid var(--glass-border-top);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease;
+      cursor: pointer;
+    }
+
+    /* Soft amber radial glow (rgba(190,112,22,.2) fading out over 135u) */
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(270 * var(--u));
+      height: calc(270 * var(--u));
+      background: radial-gradient(circle at 50% 30%, rgba(190, 112, 22, 0.2) 0%, rgba(190, 112, 22, 0.05) 50%, transparent calc(135 * var(--u)));
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .glass-card:hover {
+      transform: translateY(calc(-3 * var(--u)));
+      border-color: rgba(233, 147, 30, 0.38);
+      border-top-color: rgba(255, 194, 74, 0.65);
+    }
+
+    /* Stage (170u, top of the card) holds the icon.
+       mix-blend-mode: screen and soft radial mask, so only glow shows: NO BLACK SQUARES! */
+    .card-stage {
+      height: calc(170 * var(--u));
+      width: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000000;
+      mix-blend-mode: screen;
+      -webkit-mask-image: radial-gradient(circle at 50% 50%, black 50%, rgba(0,0,0,0.8) 72%, transparent 95%);
+      mask-image: radial-gradient(circle at 50% 50%, black 50%, rgba(0,0,0,0.8) 72%, transparent 95%);
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .hologram-svg {
+      width: calc(146 * var(--u));
+      height: calc(146 * var(--u));
+      filter: drop-shadow(0 0 calc(7 * var(--u)) rgba(233, 147, 30, 0.75)) drop-shadow(0 0 calc(18 * var(--u)) rgba(168, 90, 12, 0.4));
+    }
+
+    /* Card Body: 15u title (white at 96%) and two lines at 10.5u (white at 58%) */
+    .card-body {
+      padding: calc(6 * var(--u)) calc(18 * var(--u)) calc(18 * var(--u));
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      justify-content: flex-start;
+      position: relative;
+      z-index: 3;
+    }
+
+    .card-title {
+      font-size: calc(15 * var(--u));
+      font-weight: 500;
+      color: var(--text-white-96);
+      margin-bottom: calc(7 * var(--u));
+      letter-spacing: -0.015em;
+      line-height: 1.25;
+    }
+
+    .card-description {
+      font-size: calc(10.5 * var(--u));
+      font-weight: 400;
+      color: var(--text-white-58);
+      line-height: 1.45;
+    }
+
+    /* Live Telemetry Pill */
+    .telemetry-meta {
+      margin-top: calc(10 * var(--u));
+      display: inline-flex;
+      align-items: center;
+      gap: calc(6 * var(--u));
+      font-family: 'JetBrains Mono', monospace;
+      font-size: calc(8 * var(--u));
+      color: rgba(255, 194, 74, 0.9);
+      background: rgba(168, 90, 12, 0.14);
+      border: 1px solid rgba(233, 147, 30, 0.22);
+      padding: calc(3 * var(--u)) calc(7 * var(--u));
+      border-radius: calc(3 * var(--u));
+      width: fit-content;
+    }
+
+    .beacon-dot {
+      width: calc(5 * var(--u));
+      height: calc(5 * var(--u));
+      border-radius: 50%;
+      background: var(--amber-1);
+      box-shadow: 0 0 calc(6 * var(--u)) var(--amber-1);
+      animation: pulseBeacon 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseBeacon {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.85); }
+    }
+
+    /* Footer Strip: navigation & telemetry status */
+    .footer-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: calc(7.5 * var(--u));
+      color: var(--text-white-44);
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      padding-top: calc(10 * var(--u));
+      margin-top: calc(6 * var(--u));
+    }
+
+    .gateway-link {
+      color: var(--amber-1);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .gateway-link:hover {
+      opacity: 0.75;
+      text-decoration: underline;
+    }
+
+    /* ========================================================
+       4. TABLET & PHONE RESPONSIVE
+       ======================================================== */
+    /* Tablet: cards become stacked horizontal panels with icon on the left */
+    @media (max-width: 820px) {
+      html, body {
+        overflow-y: auto;
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .capabilities-artboard {
+        width: 100%;
+        height: auto;
+        padding: calc(20 * var(--u)) calc(16 * var(--u));
+        gap: calc(18 * var(--u));
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+        gap: calc(12 * var(--u));
+      }
+
+      .glass-card {
+        flex-direction: row;
+        align-items: center;
+        min-height: auto;
+      }
+
+      .card-stage {
+        width: calc(150 * var(--u));
+        height: calc(120 * var(--u));
+        flex-shrink: 0;
+      }
+
+      .hologram-svg {
+        width: calc(105 * var(--u));
+        height: calc(105 * var(--u));
+      }
+
+      .card-body {
+        padding: calc(12 * var(--u)) calc(16 * var(--u));
+      }
+    }
+
+    /* Phone: stacked cards; top strip keeps one line */
+    @media (max-width: 500px) {
+      .mono-strip {
+        font-size: calc(6.8 * var(--u));
+        letter-spacing: 0.16em;
+      }
+
+      .strip-rule {
+        width: calc(14 * var(--u));
+      }
+
+      .glass-card {
+        flex-direction: column;
+      }
+
+      .card-stage {
+        width: 100%;
+        height: calc(130 * var(--u));
+      }
+
+      .headline-tight {
+        font-size: calc(34 * var(--u));
+      }
+
+      .lede {
+        font-size: calc(11.5 * var(--u));
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Page: two faint vertical hairline guides at the thirds (white at 3%) -->
+  <div class="hairline-guide guide-one"></div>
+  <div class="hairline-guide guide-two"></div>
+
+  <!-- Capabilities Section (826 x 552 Artboard Scaled) -->
+  <main class="capabilities-artboard" id="capabilitiesArtboard">
+
+    <!-- Strip: 7.2u mono caps, tracking .275em, white at 44% -->
+    <header class="mono-strip" id="monoStrip">
+      <div class="strip-left">
+        <span class="strip-num">01</span>
+        <span class="strip-rule" id="stripRule"></span>
+      </div>
+      <div class="strip-center">// Capabilities</div>
+      <div class="strip-right">Full Visibility</div>
+    </header>
+
+    <!-- Headline and Lede -->
+    <div class="header-block">
+      <div class="headline-mask" id="headlineMask">
+        <h1 class="headline-tight" id="headlineElement">
+          <span class="amber-gradient-word" id="clarityWord">Clarity</span> across every layer
+        </h1>
+      </div>
+      <p class="lede" id="ledeElement">
+        A unified view of your infrastructure. Detect patterns, anticipate issues, and optimize performance before problems arise.
+      </p>
+    </div>
+
+    <!-- Cards: three columns 16u apart, each card at least 273u tall, radius 4u -->
+    <section class="cards-grid" id="cardsGrid">
+
+      <!-- ================= CARD 1: REAL-TIME SIGNALS ================= -->
+      <article class="glass-card" id="card1" onclick="triggerCardAction('signals')">
+        <!-- Stage (170u): concentric radar rings around a glowing orb, with a small dot on the outer ring -->
+        <div class="card-stage">
+          <svg class="hologram-svg" id="iconRadar" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="radarCoreGrad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#FFF3C4" stop-opacity="1"/>
+                <stop offset="35%" stop-color="#FFC24A" stop-opacity="0.9"/>
+                <stop offset="70%" stop-color="#E9931E" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#A85A0C" stop-opacity="0"/>
+              </radialGradient>
+              <linearGradient id="amberStrokeLine" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFC24A"/>
+                <stop offset="55%" stop-color="#E9931E"/>
+                <stop offset="100%" stop-color="#A85A0C"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Coordinate crosshairs -->
+            <line x1="25" y1="100" x2="175" y2="100" stroke="#E9931E" stroke-opacity="0.2" stroke-width="1" stroke-dasharray="3 3"/>
+            <line x1="100" y1="25" x2="100" y2="175" stroke="#E9931E" stroke-opacity="0.2" stroke-width="1" stroke-dasharray="3 3"/>
+
+            <!-- Concentric Radar Rings -->
+            <!-- Outer Ring -->
+            <circle cx="100" cy="100" r="74" stroke="url(#amberStrokeLine)" stroke-width="1.3" stroke-opacity="0.65"/>
+            <circle cx="100" cy="100" r="74" stroke="#FFC24A" stroke-width="1" stroke-dasharray="3 14" stroke-opacity="0.95"/>
+
+            <!-- Mid Ring -->
+            <circle cx="100" cy="100" r="48" stroke="url(#amberStrokeLine)" stroke-width="1.2" stroke-opacity="0.7" stroke-dasharray="6 4"/>
+
+            <!-- Inner Ring -->
+            <circle cx="100" cy="100" r="26" stroke="#FFC24A" stroke-width="1.4" stroke-opacity="0.9"/>
+
+            <!-- Sweep Sector -->
+            <path d="M 100,100 L 152,48 A 74 74 0 0 1 174,100 Z" fill="url(#radarCoreGrad)" opacity="0.32"/>
+
+            <!-- Central Glowing Orb -->
+            <circle cx="100" cy="100" r="16" fill="url(#radarCoreGrad)"/>
+            <circle cx="100" cy="100" r="6" fill="#FFF8D9" filter="drop-shadow(0 0 6px #FFC24A)"/>
+
+            <!-- Small dot on the outer ring (at 45deg coordinate) -->
+            <circle cx="152.3" cy="47.7" r="4.2" fill="#FFF3C4"/>
+            <circle cx="152.3" cy="47.7" r="8" stroke="#FFC24A" stroke-width="1" stroke-opacity="0.6"/>
+          </svg>
+        </div>
+
+        <div class="card-body">
+          <h2 class="card-title">Real-Time Signals</h2>
+          <p class="card-description">Stay ahead with live system data and continuous performance tracking across all nodes.</p>
+          <div class="telemetry-meta">
+            <span class="beacon-dot"></span>
+            <span id="tel1">128 Nodes • 12ms ping</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- ================= CARD 2: ACTIONABLE INSIGHTS ================= -->
+      <article class="glass-card" id="card2" onclick="triggerCardAction('insights')">
+        <!-- Stage (170u): thin glowing bar-chart cylinders beside two overlapping wireframe spheres, with three short dashes above -->
+        <div class="card-stage">
+          <svg class="hologram-svg" id="iconChart" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="barCylinderGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="#A85A0C" stop-opacity="0.25"/>
+                <stop offset="60%" stop-color="#E9931E" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#FFC24A" stop-opacity="1"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Three short dashes above -->
+            <line x1="82" y1="28" x2="93" y2="28" stroke="#FFC24A" stroke-width="2" stroke-linecap="round"/>
+            <line x1="99" y1="23" x2="110" y2="23" stroke="#FFC24A" stroke-width="2" stroke-linecap="round"/>
+            <line x1="116" y1="28" x2="127" y2="28" stroke="#FFC24A" stroke-width="2" stroke-linecap="round"/>
+
+            <!-- Left Overlapping Wireframe Sphere 1 -->
+            <circle cx="68" cy="115" r="34" stroke="url(#amberStrokeLine)" stroke-width="1.1" stroke-opacity="0.65"/>
+            <ellipse cx="68" cy="115" rx="34" ry="12" stroke="#FFC24A" stroke-width="0.9" stroke-opacity="0.45"/>
+            <ellipse cx="68" cy="115" rx="12" ry="34" stroke="#FFC24A" stroke-width="0.9" stroke-opacity="0.45"/>
+
+            <!-- Right Overlapping Wireframe Sphere 2 -->
+            <circle cx="102" cy="126" r="28" stroke="url(#amberStrokeLine)" stroke-width="1.1" stroke-opacity="0.65"/>
+            <ellipse cx="102" cy="126" rx="28" ry="10" stroke="#FFC24A" stroke-width="0.9" stroke-opacity="0.45"/>
+            <ellipse cx="102" cy="126" rx="10" ry="28" stroke="#FFC24A" stroke-width="0.9" stroke-opacity="0.45"/>
+
+            <!-- Thin glowing bar-chart cylinders beside the spheres -->
+            <!-- Cylinder 1 -->
+            <rect x="135" y="88" width="9" height="58" rx="4.5" fill="url(#barCylinderGrad)"/>
+            <ellipse cx="139.5" cy="88" rx="4.5" ry="2" fill="#FFF3C4"/>
+
+            <!-- Cylinder 2 -->
+            <rect x="151" y="64" width="9" height="82" rx="4.5" fill="url(#barCylinderGrad)"/>
+            <ellipse cx="155.5" cy="64" rx="4.5" ry="2" fill="#FFF3C4"/>
+
+            <!-- Cylinder 3 (Tallest) -->
+            <rect x="167" y="42" width="9" height="104" rx="4.5" fill="url(#barCylinderGrad)"/>
+            <ellipse cx="171.5" cy="42" rx="4.5" ry="2" fill="#FFF3C4"/>
+
+            <!-- Ground connector -->
+            <line x1="32" y1="152" x2="182" y2="152" stroke="#E9931E" stroke-opacity="0.25" stroke-width="1"/>
+          </svg>
+        </div>
+
+        <div class="card-body">
+          <h2 class="card-title">Actionable Insights</h2>
+          <p class="card-description">Turn complex data into clear decisions with instant, intelligent analysis.</p>
+          <div class="telemetry-meta">
+            <span class="beacon-dot"></span>
+            <span id="tel2">0 Anomalies • +18.4% load</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- ================= CARD 3: AUTOMATED REPORTING ================= -->
+      <article class="glass-card" id="card3" onclick="triggerCardAction('reports')">
+        <!-- Stage (170u): a stack of translucent glowing document sheets with text lines -->
+        <div class="card-stage">
+          <svg class="hologram-svg" id="iconSheets" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="sheetGlassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFC24A" stop-opacity="0.28"/>
+                <stop offset="100%" stop-color="#A85A0C" stop-opacity="0.06"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Sheet 3 (Bottom Layer) -->
+            <g transform="translate(0, 16)">
+              <polygon points="45,95 115,55 165,85 95,125" fill="url(#sheetGlassGrad)" stroke="#E9931E" stroke-width="1" stroke-opacity="0.35"/>
+            </g>
+
+            <!-- Sheet 2 (Middle Layer) -->
+            <g transform="translate(0, 8)">
+              <polygon points="40,85 110,45 160,75 90,115" fill="url(#sheetGlassGrad)" stroke="#E9931E" stroke-width="1.2" stroke-opacity="0.6"/>
+              <line x1="68" y1="80" x2="120" y2="62" stroke="#FFC24A" stroke-width="1.2" stroke-opacity="0.5"/>
+              <line x1="72" y1="90" x2="135" y2="70" stroke="#FFC24A" stroke-width="1.2" stroke-opacity="0.5"/>
+            </g>
+
+            <!-- Sheet 1 (Top Layer) -->
+            <g transform="translate(0, 0)">
+              <polygon points="35,75 105,35 155,65 85,105" fill="url(#sheetGlassGrad)" stroke="#FFC24A" stroke-width="1.6" stroke-opacity="0.95"/>
+              
+              <!-- Document Header Stamp -->
+              <circle cx="62" cy="65" r="4.5" fill="#FFF3C4" filter="drop-shadow(0 0 5px #FFC24A)"/>
+              <line x1="74" y1="62" x2="114" y2="48" stroke="#FFF3C4" stroke-width="2" stroke-linecap="round"/>
+
+              <!-- Text Lines on Top Sheet -->
+              <line x1="58" y1="78" x2="132" y2="54" stroke="#FFC24A" stroke-width="1.4" stroke-linecap="round" stroke-opacity="0.9"/>
+              <line x1="62" y1="88" x2="126" y2="66" stroke="#FFC24A" stroke-width="1.4" stroke-linecap="round" stroke-opacity="0.9"/>
+              <line x1="66" y1="97" x2="112" y2="81" stroke="#E9931E" stroke-width="1.4" stroke-linecap="round" stroke-opacity="0.75"/>
+            </g>
+
+            <!-- Floating Data Micro-Pings -->
+            <circle cx="145" cy="42" r="2" fill="#FFF3C4"/>
+            <circle cx="48" cy="115" r="1.5" fill="#FFF3C4"/>
+          </svg>
+        </div>
+
+        <div class="card-body">
+          <h2 class="card-title">Automated Reporting</h2>
+          <p class="card-description">Generate structured reports that reveal system health at a glance.</p>
+          <div class="telemetry-meta">
+            <span class="beacon-dot"></span>
+            <span id="tel3">REP-8842 • 100% Health</span>
+          </div>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- Bottom Context Strip -->
+    <footer class="footer-strip">
+      <div>
+        <span id="backendGatewayIndicator" style="color:#34d399;">● Live Backend Gateway Online (Port 5000)</span>
+      </div>
+      <div>
+        <a href="index.html" class="gateway-link">Open INCLUAI Workplace Dashboard →</a>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ========================================================
+       5. MOTION ENGINE (WAAPI Master Entrance Timeline)
+       ======================================================== -->
+  <script>
+    // Uniform Containment Scale Engine based on 826x552 artboard
+    function updateContainScale() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      // Largest uniform "contain" scale, never under 1px per artboard pixel
+      const scale = Math.max(1, Math.min(w / 826, h / 552));
+      document.documentElement.style.setProperty('--u', `${scale}px`);
+    }
+
+    window.addEventListener('resize', updateContainScale);
+    updateContainScale();
+
+    // Master Web Animations Timeline
+    window.addEventListener('DOMContentLoaded', () => {
+      // Reduced motion: no entrance
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReducedMotion) return;
+
+      const easeSpring = 'cubic-bezier(0.16, 1, 0.3, 1)';
+      const easeOvershoot = 'cubic-bezier(0.34, 1.4, 0.64, 1)';
+
+      // 1. The strip items rise, and the rule after "01" draws
+      const monoStrip = document.getElementById('monoStrip');
+      const stripRule = document.getElementById('stripRule');
+
+      if (monoStrip) {
+        monoStrip.animate([
+          { opacity: 0, transform: 'translateY(12px)' },
+          { opacity: 1, transform: 'translateY(0)' }
+        ], {
+          duration: 600,
+          delay: 60,
+          easing: easeSpring,
+          fill: 'backwards'
+        });
+      }
+
+      if (stripRule) {
+        stripRule.animate([
+          { transform: 'scaleX(0)' },
+          { transform: 'scaleX(1)' }
+        ], {
+          duration: 480,
+          delay: 300,
+          easing: easeSpring,
+          fill: 'backwards'
+        });
+      }
+
+      // 2. The headline rises inside a fixed mask, and "Clarity" fades up
+      const headlineElement = document.getElementById('headlineElement');
+      const clarityWord = document.getElementById('clarityWord');
+
+      if (headlineElement) {
+        headlineElement.animate([
+          { opacity: 0, transform: 'translateY(100%)' },
+          { opacity: 1, transform: 'translateY(0)' }
+        ], {
+          duration: 700,
+          delay: 180,
+          easing: easeSpring,
+          fill: 'backwards'
+        });
+      }
+
+      if (clarityWord) {
+        clarityWord.animate([
+          { opacity: 0, filter: 'drop-shadow(0 0 0px rgba(233, 147, 30, 0))' },
+          { opacity: 1, filter: 'drop-shadow(0 0 16px rgba(233, 147, 30, 0.5))' }
+        ], {
+          duration: 750,
+          delay: 380,
+          easing: easeSpring,
+          fill: 'backwards'
+        });
+      }
+
+      // 3. The lede settles
+      const ledeElement = document.getElementById('ledeElement');
+      if (ledeElement) {
+        ledeElement.animate([
+          { opacity: 0, transform: 'translateY(10px)' },
+          { opacity: 1, transform: 'translateY(0)' }
+        ], {
+          duration: 600,
+          delay: 340,
+          easing: easeSpring,
+          fill: 'backwards'
+        });
+      }
+
+      // 4. The cards rise in reading order
+      const cardIds = ['card1', 'card2', 'card3'];
+      cardIds.forEach((id, idx) => {
+        const card = document.getElementById(id);
+        if (card) {
+          card.animate([
+            { opacity: 0, transform: 'translateY(24px)' },
+            { opacity: 1, transform: 'translateY(0)' }
+          ], {
+            duration: 700,
+            delay: 420 + (idx * 110),
+            easing: easeSpring,
+            fill: 'backwards'
+          });
+        }
+      });
+
+      // 5. Each icon performs once
+      // Radar pops in from 72%
+      const iconRadar = document.getElementById('iconRadar');
+      if (iconRadar) {
+        iconRadar.animate([
+          { opacity: 0, transform: 'scale(0.72)' },
+          { opacity: 1, transform: 'scale(1)' }
+        ], {
+          duration: 700,
+          delay: 550,
+          easing: easeOvershoot,
+          fill: 'backwards'
+        });
+      }
+
+      // Chart wipes up
+      const iconChart = document.getElementById('iconChart');
+      if (iconChart) {
+        iconChart.animate([
+          { clipPath: 'inset(100% 0% 0% 0%)', opacity: 0 },
+          { clipPath: 'inset(0% 0% 0% 0%)', opacity: 1 }
+        ], {
+          duration: 650,
+          delay: 680,
+          easing: easeSpring,
+          fill: 'backwards'
+        });
+      }
+
+      // Report sheets wipe in from the left
+      const iconSheets = document.getElementById('iconSheets');
+      if (iconSheets) {
+        iconSheets.animate([
+          { clipPath: 'inset(0% 100% 0% 0%)', opacity: 0 },
+          { clipPath: 'inset(0% 0% 0% 0%)', opacity: 1 }
+        ], {
+          duration: 650,
+          delay: 800,
+          easing: easeSpring,
+          fill: 'backwards'
+        });
+      }
+    });
+
+    // ========================================================
+    // 6. LIVE BACKEND TELEMETRY API
+    // ========================================================
+    const API_BASE = "http://localhost:5000/api";
+
+    async function checkBackendGateway() {
+      try {
+        const res = await fetch(`${API_BASE}/status`);
+        if (res.ok) {
+          const data = await res.json();
+          const el = document.getElementById('backendGatewayIndicator');
+          if (el) el.innerHTML = `● Backend Gateway Online (${data.aiEngine})`;
+        }
+      } catch (err) {
+        const el = document.getElementById('backendGatewayIndicator');
+        if (el) el.innerHTML = `● Running in Local Client Mode`;
+      }
+    }
+
+    async function triggerCardAction(type) {
+      try {
+        if (type === 'signals') {
+          const res = await fetch(`${API_BASE}/infrastructure/signals`);
+          if (res.ok) {
+            const data = await res.json();
+            const el = document.getElementById('tel1');
+            if (el) el.textContent = `${data.nodesActive} Nodes • ${data.latencyMs}ms ping • ${data.throughputGbps} GB/s`;
+          }
+        } else if (type === 'insights') {
+          const res = await fetch(`${API_BASE}/infrastructure/insights`);
+          if (res.ok) {
+            const data = await res.json();
+            const el = document.getElementById('tel2');
+            if (el) el.textContent = `${data.anomalies} Anomalies • ${data.loadForecast}`;
+          }
+        } else if (type === 'reports') {
+          const res = await fetch(`${API_BASE}/infrastructure/reports`);
+          if (res.ok) {
+            const data = await res.json();
+            const el = document.getElementById('tel3');
+            if (el) el.textContent = `${data.reportId} • ${data.complianceScore}`;
+          }
+        }
+      } catch (err) {}
+    }
+
+    checkBackendGateway();
+    // Auto-poll live signals
+    setInterval(() => {
+      triggerCardAction('signals');
+    }, 7000);
+  </script>
+</body>
+</html>

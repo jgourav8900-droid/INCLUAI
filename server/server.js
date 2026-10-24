@@ -400,6 +400,53 @@ app.post('/api/copilot/chat', async (req, res) => {
 });
 
 // ========================================================
+// ========================================================
+// 2.6 INFRASTRUCTURE MONITORING & CAPABILITIES TELEMETRY API
+// ========================================================
+app.get('/api/infrastructure/signals', (req, res) => {
+  res.json({
+    success: true,
+    title: 'Real-Time Signals',
+    status: 'optimal',
+    nodesActive: 128,
+    nodesTotal: 128,
+    latencyMs: Math.floor(10 + Math.random() * 5),
+    throughputGbps: (4.6 + Math.random() * 0.4).toFixed(2),
+    uptime: '99.992%',
+    lastPacketSync: new Date().toISOString(),
+    signalHealth: 99.8
+  });
+});
+
+app.get('/api/infrastructure/insights', (req, res) => {
+  res.json({
+    success: true,
+    title: 'Actionable Insights',
+    anomalies: 0,
+    optimizationsAvailable: 3,
+    loadForecast: '+18.4% expected during Q4 peak',
+    memoryPressure: '34.2%',
+    efficiencyRating: 'A+',
+    recommendation: 'Cluster auto-scaling balanced across all 3 zones'
+  });
+});
+
+app.get('/api/infrastructure/reports', (req, res) => {
+  res.json({
+    success: true,
+    title: 'Automated Reporting',
+    lastReportGenerated: new Date().toISOString(),
+    reportId: 'REP-INFRA-8842',
+    complianceScore: '100% WCAG & ISO-27001',
+    healthSummary: 'All systems nominal across 3 distributed clusters'
+  });
+});
+
+app.get('/capabilities', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'capabilities.html'));
+});
+
+// ========================================================
 // 3. START SERVER
 // ========================================================
 app.listen(PORT, () => {
